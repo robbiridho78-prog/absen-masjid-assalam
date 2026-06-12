@@ -15,7 +15,38 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-container">
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="login-overlay active">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="logo.jpg" alt="Logo Assalam" class="login-logo">
+                <h2>Selamat Datang</h2>
+                <p>Sistem Absensi Jamaah Masjid Assalam</p>
+            </div>
+            <form id="form-login">
+                <div class="form-group-vertical">
+                    <label for="login-role">Masuk Sebagai</label>
+                    <select id="login-role" class="form-select" required>
+                        <option value="pengabsen">Pengabsen (Petugas Harian)</option>
+                        <option value="admin">Admin (Pengurus Inti)</option>
+                    </select>
+                </div>
+                <div class="form-group-vertical">
+                    <label for="login-pin">Masukkan PIN</label>
+                    <input type="password" id="login-pin" class="form-input" placeholder="****" required autocomplete="off">
+                </div>
+                <button type="submit" class="btn btn-primary w-full mt-4">
+                    <i data-lucide="log-in"></i> Masuk Sistem
+                </button>
+            </form>
+            <div class="login-footer text-muted mt-4 text-center" style="font-size: 0.8rem;">
+                <p>Silakan hubungi pengurus jika lupa PIN Anda.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="app-container" class="app-container" style="display: none;">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="sidebar-brand">
@@ -29,7 +60,7 @@
             </div>
 
             <nav class="sidebar-nav">
-                <button class="nav-item active" data-tab="dashboard">
+                <button class="nav-item active" data-tab="dashboard" id="nav-dashboard">
                     <i data-lucide="layout-dashboard"></i>
                     <span>Dashboard</span>
                 </button>
@@ -37,7 +68,7 @@
                     <i data-lucide="user-check"></i>
                     <span>ABSENSI</span>
                 </button>
-                <button class="nav-item" data-tab="members">
+                <button class="nav-item" data-tab="members" id="nav-members">
                     <i data-lucide="users"></i>
                     <span>Data Jamaah</span>
                 </button>
@@ -45,9 +76,14 @@
                     <i data-lucide="trophy"></i>
                     <span>Leaderboard</span>
                 </button>
-                <button class="nav-item" data-tab="settings">
+                <button class="nav-item" data-tab="settings" id="nav-settings">
                     <i data-lucide="settings"></i>
                     <span>Pengaturan</span>
+                </button>
+                <div class="sidebar-divider"></div>
+                <button class="nav-item text-danger" id="btn-logout" style="color: #ef4444;">
+                    <i data-lucide="log-out"></i>
+                    <span>Keluar (Logout)</span>
                 </button>
             </nav>
 

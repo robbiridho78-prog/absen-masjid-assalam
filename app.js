@@ -15,11 +15,18 @@ let state = {
     attendance: [] // Array of { id, date, prayer, memberId, present: true }
 };
 
+// Auth variables
+let currentUserRole = null;
+const PIN_ADMIN = "9999";
+const PIN_PENGABSEN = "1234";
+
 // Charts references
 let trendChart = null;
 
 // Initialize application on DOM load
 document.addEventListener("DOMContentLoaded", async () => {
+    checkAuthSession();
+
     await loadDataFromDatabase();
     initializeUI();
     initializeClock();
@@ -31,6 +38,97 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Refresh icons
     lucide.createIcons();
 });
+
+// ==========================================================================
+// 1.5 AUTHENTICATION LOGIC
+// ==========================================================================
+function checkAuthSession() {
+    const savedRole = localStorage.getItem("absen_jamaah_role");
+    const loginScreen = document.getElementById("login-screen");
+    const appContainer = document.getElementById("app-container");
+
+    if (savedRole) {
+        currentUserRole = savedRole;
+        loginScreen.classList.remove("active");
+        appContainer.style.display = "flex";
+        applyRolePermissions();
+    } else {
+        loginScreen.classList.add("active");
+        appContainer.style.display = "none";
+    }
+
+    // Bind login form
+    document.getElementById("form-login").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const role = document.getElementById("login-role").value;
+        const pin = document.getElementById("login-pin").value;
+
+        if (role === "admin" && pin === PIN_ADMIN) {
+            loginSuccess("admin");
+        } else if (role === "pengabsen" && pin === PIN_PENGABSEN) {
+            loginSuccess("pengabsen");
+        } else {
+            alert("PIN Salah! Silakan coba lagi.");
+        }
+    });
+
+    // Bind logout button
+    document.getElementById("btn-logout").addEventListener("click", () => {
+        if(confirm("Apakah Anda yakin ingin keluar?")) {
+            localStorage.removeItem("absen_jamaah_role");
+            window.location.reload();
+        }
+    });
+}
+
+function loginSuccess(role) {
+    localStorage.setItem("absen_jamaah_role", role);
+    currentUserRole = role;
+    document.getElementById("login-pin").value = "";
+    
+    const loginScreen = document.getElementById("login-screen");
+    const appContainer = document.getElementById("app-container");
+    
+    loginScreen.classList.remove("active");
+    appContainer.style.display = "flex";
+    
+    applyRolePermissions();
+    showToast("Berhasil masuk sebagai " + (role === "admin" ? "Admin" : "Pengabsen"), "success");
+}
+
+function applyRolePermissions() {
+    // Nav Items
+    const navDashboard = document.getElementById("nav-dashboard");
+    const navMembers = document.getElementById("nav-members");
+    const navSettings = document.getElementById("nav-settings");
+    
+    // Action Buttons
+    const btnAddMember = document.getElementById("btn-add-member");
+
+    if (currentUserRole === "pengabsen") {
+        // Hide Admin menus
+        if (navDashboard) navDashboard.style.display = "none";
+        if (navMembers) navMembers.style.display = "none";
+        if (navSettings) navSettings.style.display = "none";
+        
+        // Hide add/edit/delete buttons
+        if (btnAddMember) btnAddMember.style.display = "none";
+        
+        // Add CSS rule to hide action columns in tables
+        let style = document.createElement('style');
+        style.innerHTML = '.action-buttons-group { display: none !important; }';
+        document.head.appendChild(style);
+
+        // Force active tab to attendance
+        document.querySelector('[data-tab="attendance"]').click();
+    } else {
+        // Show everything for Admin
+        if (navDashboard) navDashboard.style.display = "flex";
+        if (navMembers) navMembers.style.display = "flex";
+        if (navSettings) navSettings.style.display = "flex";
+        if (btnAddMember) btnAddMember.style.display = "flex";
+    }
+}
 
 // ==========================================================================
 // 2. STORAGE MANAGEMENT
