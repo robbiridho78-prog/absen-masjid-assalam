@@ -1635,8 +1635,8 @@ body {
         box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
     }
 
-    .sidebar-brand {
-        display: none; /* Hide logo on bottom nav */
+    .sidebar-brand, .sidebar-footer {
+        display: none !important;
     }
 
     .sidebar-nav {
