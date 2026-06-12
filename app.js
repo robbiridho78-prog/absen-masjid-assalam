@@ -8,7 +8,7 @@
 // ==========================================================================
 let state = {
     mosque: {
-        name: "Masjid Assalam",
+        name: "Kelompok Assalam",
         address: "Jl. Assalam No. 45, Jakarta Selatan"
     },
     jamaah: [],
@@ -162,8 +162,9 @@ async function loadDataFromDatabase() {
             if (saved) {
                 const parsed = JSON.parse(saved);
                 if (parsed.mosque) state.mosque = parsed.mosque;
-            } else {
-                state.mosque = { name: "Masjid Assalam", address: "Jl. Assalam No. 45, Jakarta Selatan" };
+            }
+            if (!state.mosque || !state.mosque.name) {
+                state.mosque = { name: "Kelompok Assalam", address: "Jl. Assalam No. 45, Jakarta Selatan" };
             }
         } catch (e) {
             console.error("Gagal memuat dari Supabase. Menggunakan data local jika ada.", e);
@@ -213,8 +214,8 @@ function initializeUI() {
     
     const subtitleMap = {
         dashboard: "Ringkasan aktivitas dan kehadiran jamaah hari ini",
-        attendance: "catatan kehadiran jamaah Assalam untuk sambung pengajian",
-        members: "Daftar jamaah Masjid Assalam",
+        attendance: "catatan kehadiran jamaah Kelompok Assalam untuk sambung pengajian",
+        members: "Daftar jamaah Kelompok Assalam",
         leaderboard: "Daftar jamaah teraktif dan istiqamah",
         settings: "Pengaturan profil masjid dan manajemen database"
     };
@@ -1066,7 +1067,7 @@ function handleClearDatabase() {
     if (confirm("Apakah Anda yakin ingin menghapus SELURUH database? Tindakan ini akan menghapus semua jamaah, profil masjid, dan riwayat absensi. Tindakan ini tidak dapat dibatalkan.")) {
         state = {
             mosque: {
-                name: "Masjid Assalam",
+                name: "Kelompok Assalam",
                 address: "Jl. Assalam No. 45, Jakarta Selatan"
             },
             jamaah: [],
