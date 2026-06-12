@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absen Jamaah - Masjid Assalam</title>
+    <!-- Google Fonts: Outfit for Headings, Inter for Body -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons for premium visual design -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js for premium analytical dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <img src="logo.jpg" alt="Logo Assalam" class="brand-logo-img">
+                </div>
+                <div class="brand-text">
+                    <h1>Assalam</h1>
+                    <span>Sistem Absensi Jamaah</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-tab="dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-tab="attendance">
+                    <i data-lucide="user-check"></i>
+                    <span>Absensi</span>
+                </button>
+                <button class="nav-item" data-tab="members">
+                    <i data-lucide="users"></i>
+                    <span>Data Jamaah</span>
+                </button>
+                <button class="nav-item" data-tab="leaderboard">
+                    <i data-lucide="trophy"></i>
+                    <span>Leaderboard</span>
+                </button>
+                <button class="nav-item" data-tab="settings">
+                    <i data-lucide="settings"></i>
+                    <span>Pengaturan</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="time-widget">
+                    <div id="live-clock" class="clock-time">00:00:00</div>
+                    <div id="live-date" class="clock-date">Jumat, 12 Juni 2026</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="content-header">
+                <div class="header-title">
+                    <h2 id="page-title">Dashboard</h2>
+                    <p id="page-subtitle" class="text-muted">Ringkasan aktivitas dan kehadiran jamaah hari ini</p>
+                </div>
+                
+            </header>
+
+            <!-- TAB 1: Dashboard -->
+            <section id="tab-dashboard" class="tab-panel active">
+                <!-- Overview Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper emerald">
+                            <i data-lucide="users"></i>
+                        </div>
+                        <div class="stat-data">
+                            <span class="stat-label">Total Jamaah</span>
+                            <h3 class="stat-value" id="stat-total-jamaah">0</h3>
+                            <span class="stat-trend green"><i data-lucide="trending-up"></i> Terdaftar</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper gold">
+                            <i data-lucide="calendar-check"></i>
+                        </div>
+                        <div class="stat-data">
+                            <span class="stat-label">Kehadiran Hari Ini</span>
+                            <h3 class="stat-value" id="stat-today-attendance">0%</h3>
+                            <span class="stat-trend gold" id="stat-today-count">0 Jamaah</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper blue">
+                            <i data-lucide="award"></i>
+                        </div>
+                        <div class="stat-data">
+                            <span class="stat-label">Rata-rata Harian</span>
+                            <h3 class="stat-value" id="stat-avg-attendance">0%</h3>
+                            <span class="stat-trend blue">Bulan ini</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper purple">
+                            <i data-lucide="zap"></i>
+                        </div>
+                        <div class="stat-data">
+                            <span class="stat-label">Jamaah Istiqamah</span>
+                            <h3 class="stat-value" id="stat-active-streaks">0</h3>
+                            <span class="stat-trend purple">Streak ≥ 5 hari</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts & Activity Row -->
+                <div class="dashboard-grid full-width">
+                    <!-- Analytics Chart Card -->
+                    <div class="content-card chart-card">
+                        <div class="card-header">
+                            <h3>Tren Kehadiran Bulanan</h3>
+                            <span class="badge">30 Hari Kedepan</span>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="attendanceTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Grid -->
+                <div class="dashboard-grid full-width">
+                    <div class="content-card recent-activity-card">
+                        <div class="card-header">
+                            <h3>Kehadiran Terbaru</h3>
+                            <button class="btn btn-text btn-view-all-absensi">Lihat Detail <i data-lucide="arrow-right"></i></button>
+                        </div>
+                        <div class="card-body">
+                            <div class="activity-timeline" id="recent-activities-list">
+                                <!-- Dynamic dynamic loading -->
+                                <div class="empty-state">
+                                    <i data-lucide="info"></i>
+                                    <p>Belum ada data kehadiran terekam hari ini.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: Attendance Marking -->
+            <section id="tab-attendance" class="tab-panel">
+                <!-- Filter Bar -->
+                <div class="filter-bar content-card">
+                    <div class="filter-group">
+                        <label for="attendance-date"><i data-lucide="calendar"></i> Tanggal</label>
+                        <input type="date" id="attendance-date" class="form-input" min="2026-06-12" max="2045-12-31">
+                    </div>
+                    <div class="search-box-wrapper">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="attendance-search" placeholder="Cari nama jamaah..." class="form-input search-input">
+                    </div>
+                    <div class="filter-actions">
+                        <button id="btn-mark-all" class="btn btn-secondary">
+                            <i data-lucide="check-square"></i> Centang Semua
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Grid of Attendance cards -->
+                <div class="attendance-grid-container">
+                    <div class="attendance-stats-bar">
+                        <span id="attendance-summary-text">Menampilkan 0 Jamaah | 0 Hadir</span>
+                        <div class="progressbar-container">
+                            <div id="attendance-progress" class="progressbar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="jamaah-attendance-grid" id="jamaah-attendance-cards">
+                        <!-- Loaded dynamically via JS -->
+                        <div class="empty-state">
+                            <i data-lucide="users"></i>
+                            <h3>Belum Ada Data Jamaah</h3>
+                            <p>Silakan daftarkan jamaah terlebih dahulu di tab 'Data Jamaah' atau isi mock data di 'Pengaturan'.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: Members / Data Jamaah -->
+            <section id="tab-members" class="tab-panel">
+                <div class="members-header-actions">
+                    <div class="search-filter-wrapper content-card">
+                        <div class="search-box-wrapper">
+                            <i data-lucide="search"></i>
+                            <input type="text" id="member-search" placeholder="Cari nama atau telepon..." class="form-input search-input">
+                        </div>
+                        <div class="filter-group">
+                            <select id="member-filter-gender" class="form-select">
+                                <option value="all">Semua Gender</option>
+                                <option value="Laki-laki">Laki-laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <select id="member-filter-category" class="form-select">
+                                <option value="all">Semua Kategori</option>
+                                <option value="Anak-anak">Anak-anak</option>
+                                <option value="Remaja">Remaja</option>
+                                <option value="Dewasa">Dewasa</option>
+                                <option value="Lansia">Lansia</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="btn-add-member" class="btn btn-primary">
+                        <i data-lucide="user-plus"></i> Tambah Jamaah
+                    </button>
+                </div>
+
+                <!-- Member List Table Card -->
+                <div class="content-card table-card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nama</th>
+                                    <th>Gender</th>
+                                    <th>Kategori Umur</th>
+                                    <th>No. Telepon</th>
+                                    <th>Alamat / RT-RW</th>
+                                    <th>Total Hadir</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="member-table-body">
+                                <!-- Loaded dynamically via JS -->
+                                <tr>
+                                    <td colspan="7" class="text-center py-8">
+                                        <div class="empty-state">
+                                            <i data-lucide="users"></i>
+                                            <p>Data jamaah kosong.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: Leaderboard / Istiqamah List -->
+            <section id="tab-leaderboard" class="tab-panel">
+                <!-- Podiums for Top 3 Streaks -->
+                <div class="podium-container">
+                    <div class="podium-spot second">
+                        <div class="podium-avatar">
+                            <i data-lucide="user" class="avatar-icon"></i>
+                            <div class="podium-badge">2</div>
+                        </div>
+                        <h4 class="podium-name" id="podium-2-name">-</h4>
+                        <div class="podium-meta">
+                            <span class="streak-value" id="podium-2-streak">0</span>
+                            <span class="label">Hari Streak</span>
+                        </div>
+                        <div class="podium-bar"></div>
+                    </div>
+
+                    <div class="podium-spot first">
+                        <div class="crown-icon">
+                            <i data-lucide="crown"></i>
+                        </div>
+                        <div class="podium-avatar">
+                            <i data-lucide="user" class="avatar-icon"></i>
+                            <div class="podium-badge">1</div>
+                        </div>
+                        <h4 class="podium-name" id="podium-1-name">-</h4>
+                        <div class="podium-meta">
+                            <span class="streak-value" id="podium-1-streak">0</span>
+                            <span class="label">Hari Streak</span>
+                        </div>
+                        <div class="podium-bar"></div>
+                    </div>
+
+                    <div class="podium-spot third">
+                        <div class="podium-avatar">
+                            <i data-lucide="user" class="avatar-icon"></i>
+                            <div class="podium-badge">3</div>
+                        </div>
+                        <h4 class="podium-name" id="podium-3-name">-</h4>
+                        <div class="podium-meta">
+                            <span class="streak-value" id="podium-3-streak">0</span>
+                            <span class="label">Hari Streak</span>
+                        </div>
+                        <div class="podium-bar"></div>
+                    </div>
+                </div>
+
+                <!-- Leaderboard Rank list -->
+                <div class="content-card table-card mt-8">
+                    <div class="card-header">
+                        <h3>Daftar Jamaah Paling Aktif</h3>
+                        <span class="badge emerald">Update Realtime</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th width="80px">Peringkat</th>
+                                    <th>Nama Jamaah</th>
+                                    <th>Gender</th>
+                                    <th>Kategori Umur</th>
+                                    <th class="text-center">Total Hadir</th>
+                                    <th class="text-center">Streak Saat Ini</th>
+                                    <th>Predikat Keaktifan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-table-body">
+                                <!-- Loaded dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: Settings -->
+            <section id="tab-settings" class="tab-panel">
+                <div class="settings-grid">
+                    <!-- Mosque Profile settings -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3><i data-lucide="home"></i> Profil Masjid</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="form-settings-mosque" class="settings-form">
+                                <div class="form-group-vertical">
+                                    <label for="settings-mosque-name">Nama Masjid</label>
+                                    <input type="text" id="settings-mosque-name" class="form-input" value="Masjid Assalam">
+                                </div>
+                                <div class="form-group-vertical">
+                                    <label for="settings-mosque-address">Alamat</label>
+                                    <input type="text" id="settings-mosque-address" class="form-input" value="Jl. Assalam No. 45, Jakarta Selatan">
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-2">Simpan Perubahan</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Database Management -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3><i data-lucide="database"></i> Kelola Database</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-4">Cadangkan data kehadiran Anda atau pulihkan dari file cadangan eksternal.</p>
+                            
+                            <div class="settings-db-actions">
+                                <button id="btn-export-json" class="btn btn-secondary flex-1">
+                                    <i data-lucide="download"></i> Ekspor JSON
+                                </button>
+                                <button id="btn-export-csv" class="btn btn-secondary flex-1">
+                                    <i data-lucide="file-spreadsheet"></i> Ekspor CSV (Excel)
+                                </button>
+                            </div>
+
+                            <div class="settings-db-actions mt-4">
+                                <label for="import-json-file" class="btn btn-secondary flex-1 text-center cursor-pointer">
+                                    <i data-lucide="upload"></i> Impor JSON
+                                    <input type="file" id="import-json-file" accept=".json" style="display: none;">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Developer & Mock Data Tool -->
+                    <div class="content-card full-width">
+                        <div class="card-header">
+                            <h3><i data-lucide="terminal"></i> Simulasi & Mode Demo</h3>
+                        </div>
+                        <div class="card-body flex-row justify-between items-center gap-6 flex-wrap">
+                            <div class="flex-1 min-w-[280px]">
+                                <h4>Muat Data Contoh (Demo)</h4>
+                                <p class="text-muted">Mengisi database dengan 20 data jamaah tiruan beserta riwayat absensi salat selama 30 hari ke belakang secara acak. Sangat cocok untuk menguji grafik dashboard dan leaderboard.</p>
+                            </div>
+                            <div class="flex-row gap-2">
+                                <button id="btn-generate-mock" class="btn btn-accent">
+                                    <i data-lucide="sparkles"></i> Muat Data Demo
+                                </button>
+                                <button id="btn-clear-db" class="btn btn-danger">
+                                    <i data-lucide="trash-2"></i> Hapus Semua Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL: Add / Edit Jamaah -->
+    <div id="modal-member" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="modal-member-title">Tambah Jamaah Baru</h3>
+                <button class="btn-close-modal" id="btn-close-modal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form id="form-member">
+                <input type="hidden" id="member-id">
+                <div class="modal-body">
+                    <div class="form-group-vertical">
+                        <label for="member-name">Nama Lengkap <span class="required">*</span></label>
+                        <input type="text" id="member-name" class="form-input" placeholder="Contoh: Abdurrahman" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group-vertical flex-1">
+                            <label for="member-gender">Gender <span class="required">*</span></label>
+                            <select id="member-gender" class="form-select" required>
+                                <option value="" disabled selected>Pilih gender</option>
+                                <option value="Laki-laki">Laki-laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                            </select>
+                        </div>
+                        <div class="form-group-vertical flex-1">
+                            <label for="member-category">Kategori Umur <span class="required">*</span></label>
+                            <select id="member-category" class="form-select" required>
+                                <option value="" disabled selected>Pilih Kategori</option>
+                                <option value="Anak-anak">Anak-anak (5-12)</option>
+                                <option value="Remaja">Remaja (13-19)</option>
+                                <option value="Dewasa">Dewasa (20-59)</option>
+                                <option value="Lansia">Lansia (60+)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group-vertical">
+                        <label for="member-phone">No. Telepon / WhatsApp</label>
+                        <input type="tel" id="member-phone" class="form-input" placeholder="Contoh: 081234567890">
+                    </div>
+                    <div class="form-group-vertical">
+                        <label for="member-address">Alamat / RT / RW</label>
+                        <textarea id="member-address" class="form-textarea" placeholder="Alamat rumah jamaah..." rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Batal</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-member">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Supabase SDK & Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js"></script>
+
+    <script src="app.js"></script>
+</body>
+</html>
