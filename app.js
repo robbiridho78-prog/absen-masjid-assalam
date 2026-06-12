@@ -73,12 +73,19 @@ function checkAuthSession() {
     });
 
     // Bind logout button
-    document.getElementById("btn-logout").addEventListener("click", () => {
+    const handleLogout = () => {
         if(confirm("Apakah Anda yakin ingin keluar?")) {
             localStorage.removeItem("absen_jamaah_role");
             window.location.reload();
         }
-    });
+    };
+    
+    document.getElementById("btn-logout").addEventListener("click", handleLogout);
+    
+    const btnMobileLogout = document.getElementById("btn-mobile-logout");
+    if(btnMobileLogout) {
+        btnMobileLogout.addEventListener("click", handleLogout);
+    }
 }
 
 function loginSuccess(role) {
