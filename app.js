@@ -108,7 +108,7 @@ function initializeUI() {
     
     const subtitleMap = {
         dashboard: "Ringkasan aktivitas dan kehadiran jamaah hari ini",
-        attendance: "Catat kehadiran jamaah untuk salat berjamaah",
+        attendance: "catatan kehadiran jamaah Assalam untuk sambung pengajian",
         members: "Daftar jamaah Masjid Assalam",
         leaderboard: "Daftar jamaah teraktif dan istiqamah",
         settings: "Pengaturan profil masjid dan manajemen database"
