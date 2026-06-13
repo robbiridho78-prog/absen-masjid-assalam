@@ -18,7 +18,7 @@ let state = {
 // Auth variables
 let currentUserRole = null;
 const PIN_ADMIN = "9999";
-const PIN_PENGABSEN = "1234";
+const PIN_PENGABSEN = "123";
 
 // Charts references
 let trendChart = null;
