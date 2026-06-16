@@ -1,75 +1,118 @@
-// Supabase Client Initialization
+// Supabase Client Initialization (Pure Fetch API - No CDN required)
 
 const SUPABASE_URL = 'https://jnknaljkszavgdntrfzu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impua25hbGprc3phdmdkbnRyZnp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNTYyNzAsImV4cCI6MjA5NjgzMjI3MH0.koG3QgPMaFCGoPfgbOINRATs_yf2bHwb4EpuzFENdHY';
 
-// Initialize the Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const headers = {
+    'apikey': SUPABASE_ANON_KEY,
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+    'Content-Type': 'application/json'
+};
 
 // Utility functions for Database interactions
 window.db = {
     async fetchJamaah() {
-        const { data, error } = await supabase.from('jamaah').select('*');
-        if (error) {
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/jamaah?select=*`, { headers });
+            if (!res.ok) throw new Error(await res.text());
+            return await res.json();
+        } catch (error) {
             console.error("Error fetching jamaah:", error);
-            return [];
+            throw error; // Throw so app.js catch block triggers LocalStorage fallback
         }
-        return data;
     },
     
     async fetchAttendance() {
-        const { data, error } = await supabase.from('attendance').select('*');
-        if (error) {
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/attendance?select=*`, { headers });
+            if (!res.ok) throw new Error(await res.text());
+            const data = await res.json();
+            return data.map(log => ({
+                id: log.id,
+                date: log.date,
+                memberId: log.member_id,
+                status: log.status,
+                present: log.present
+            }));
+        } catch (error) {
             console.error("Error fetching attendance:", error);
-            return [];
+            throw error;
         }
-        // Map member_id back to memberId for frontend compatibility
-        return data.map(log => ({
-            id: log.id,
-            date: log.date,
-            memberId: log.member_id,
-            status: log.status,
-            present: log.present
-        }));
     },
 
     async upsertJamaah(member) {
-        const { error } = await supabase.from('jamaah').upsert({
-            id: member.id,
-            name: member.name,
-            gender: member.gender,
-            category: member.category,
-            phone: member.phone,
-            address: member.address
-        });
-        if (error) console.error("Error upserting jamaah:", error);
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/jamaah`, {
+                method: 'POST',
+                headers: { ...headers, 'Prefer': 'resolution=merge-duplicates' },
+                body: JSON.stringify({
+                    id: member.id,
+                    name: member.name,
+                    gender: member.gender,
+                    category: member.category,
+                    phone: member.phone,
+                    address: member.address
+                })
+            });
+            if (!res.ok) console.error("Error upserting jamaah:", await res.text());
+        } catch (error) {
+            console.error("Fetch error upserting jamaah:", error);
+        }
     },
 
     async deleteJamaah(memberId) {
-        const { error } = await supabase.from('jamaah').delete().eq('id', memberId);
-        if (error) console.error("Error deleting jamaah:", error);
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/jamaah?id=eq.${memberId}`, {
+                method: 'DELETE',
+                headers
+            });
+            if (!res.ok) console.error("Error deleting jamaah:", await res.text());
+        } catch (error) {
+            console.error("Fetch error deleting jamaah:", error);
+        }
     },
 
     async insertAttendance(log) {
-        const { error } = await supabase.from('attendance').insert({
-            id: log.id,
-            date: log.date,
-            member_id: log.memberId,
-            status: log.status,
-            present: log.present
-        });
-        if (error) console.error("Error inserting attendance:", error);
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/attendance`, {
+                method: 'POST',
+                headers: { ...headers, 'Prefer': 'resolution=merge-duplicates' },
+                body: JSON.stringify({
+                    id: log.id,
+                    date: log.date,
+                    member_id: log.memberId,
+                    status: log.status,
+                    present: log.present
+                })
+            });
+            if (!res.ok) console.error("Error inserting attendance:", await res.text());
+        } catch (error) {
+            console.error("Fetch error inserting attendance:", error);
+        }
     },
 
     async updateAttendanceStatus(id, status, present) {
-        const { error } = await supabase.from('attendance')
-            .update({ status: status, present: present })
-            .eq('id', id);
-        if (error) console.error("Error updating attendance:", error);
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/attendance?id=eq.${id}`, {
+                method: 'PATCH',
+                headers,
+                body: JSON.stringify({ status: status, present: present })
+            });
+            if (!res.ok) console.error("Error updating attendance:", await res.text());
+        } catch (error) {
+            console.error("Fetch error updating attendance:", error);
+        }
     },
 
     async deleteAttendance(id) {
-        const { error } = await supabase.from('attendance').delete().eq('id', id);
-        if (error) console.error("Error deleting attendance:", error);
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/attendance?id=eq.${id}`, {
+                method: 'DELETE',
+                headers
+            });
+            if (!res.ok) console.error("Error deleting attendance:", await res.text());
+        } catch (error) {
+            console.error("Fetch error deleting attendance:", error);
+        }
     }
 };
