@@ -1043,13 +1043,24 @@ function importDataJSON(e) {
             if (parsed.jamaah && parsed.attendance && parsed.mosque) {
                 state = parsed;
                 saveToLocalStorage();
-                showToast("Database berhasil diimpor!", "success");
                 
                 // Update brand text immediately
                 document.querySelector(".brand-text h1").textContent = state.mosque.name;
-                
-                // Reload dashboard/state
                 updateDashboard();
+
+                if (window.db) {
+                    showToast("Mengunggah data ke Server Pusat... Mohon tunggu.", "warning");
+                    Promise.all([
+                        ...state.jamaah.map(m => window.db.upsertJamaah(m)),
+                        ...state.attendance.map(a => window.db.insertAttendance(a))
+                    ]).then(() => {
+                        showToast("Data 100% Berhasil Disinkronkan!", "success");
+                    }).catch(err => {
+                        showToast("Beberapa data mungkin gagal sinkron.", "danger");
+                    });
+                } else {
+                    showToast("Database berhasil diimpor (Lokal)!", "success");
+                }
             } else {
                 showToast("Format file JSON tidak sesuai database valid.", "danger");
             }
