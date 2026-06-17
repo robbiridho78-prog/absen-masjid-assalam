@@ -503,7 +503,8 @@ function renderAttendanceTab() {
     });
     
     const presentCount = logs.filter(log => log.status === "Hadir" || log.present).length;
-    updateAttendanceStatsBar(presentCount, state.jamaah.length);
+    // Apply search filter immediately on render
+    filterAttendanceCards();
     lucide.createIcons();
 }
 
