@@ -508,7 +508,7 @@ function renderAttendanceTab() {
 }
 
 function updateAttendanceStatsBar(presentCount, totalCount) {
-    document.getElementById("attendance-summary-text").textContent = `Menampilkan ${totalCount} Jamaah | ${presentCount} Hadir`;
+    document.getElementById("attendance-summary-text").textContent = `Total Jamaah: ${totalCount} | ${presentCount} Hadir`;
     let pct = 0;
     if (totalCount > 0) {
         pct = Math.round((presentCount / totalCount) * 100);
@@ -519,23 +519,22 @@ function updateAttendanceStatsBar(presentCount, totalCount) {
 function filterAttendanceCards() {
     const q = document.getElementById("attendance-search").value.toLowerCase();
     const cards = document.querySelectorAll(".attendance-card");
-    let visibleCount = 0;
-    let presentCount = 0;
     
     cards.forEach(card => {
         const name = card.getAttribute("data-member-name");
-        const isPresent = card.classList.contains("status-hadir");
         
-        if (name.includes(q)) {
+        if (q.length > 0 && name.includes(q)) {
             card.style.display = "flex";
-            visibleCount++;
-            if (isPresent) presentCount++;
         } else {
             card.style.display = "none";
         }
     });
     
-    updateAttendanceStatsBar(presentCount, visibleCount);
+    const dateVal = document.getElementById("attendance-date").value;
+    const presentCount = state.attendance.filter(log => log.date === dateVal && (log.status === "Hadir" || log.present)).length;
+    const totalCount = state.jamaah.length;
+    
+    updateAttendanceStatsBar(presentCount, totalCount);
 }
 
 // New status setter (Hadir / Sakit / Ijin)
