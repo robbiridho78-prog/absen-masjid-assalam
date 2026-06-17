@@ -1,4 +1,4 @@
-const CACHE_NAME = 'absen-assalam-v1';
+const CACHE_NAME = 'absen-assalam-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -17,5 +17,19 @@ self.addEventListener('install', (e) => {
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((response) => response || fetch(e.request))
+  );
+});
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
   );
 });
