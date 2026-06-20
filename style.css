@@ -79,7 +79,7 @@ body {
     background: var(--bg-primary);
 }
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.15);
     border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -135,7 +135,7 @@ body {
     font-size: 1.25rem;
     font-weight: 700;
     letter-spacing: -0.025em;
-    color: white;
+    color: var(--text-main);
 }
 
 .brand-text span {
@@ -175,12 +175,12 @@ body {
 }
 
 .nav-item:hover {
-    color: white;
-    background-color: rgba(255, 255, 255, 0.03);
+    color: var(--text-main);
+    background-color: rgba(0, 0, 0, 0.03);
 }
 
 .nav-item.active {
-    color: white;
+    color: var(--color-primary);
     background: linear-gradient(90deg, rgba(16, 185, 129, 0.15), transparent);
     border-left: 3px solid var(--color-primary);
     padding-left: calc(1rem - 3px);
@@ -302,7 +302,7 @@ body {
 }
 
 .prayer-time-badge {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.08);
     padding: 0.35rem 0.75rem;
     border-radius: var(--radius-sm);
     font-size: 0.8rem;
@@ -339,7 +339,7 @@ body {
 }
 
 .content-card:hover {
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(0, 0, 0, 0.15);
     box-shadow: var(--shadow-lg);
 }
 
@@ -365,7 +365,7 @@ body {
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 600;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.08);
     color: var(--text-muted);
 }
 
@@ -407,14 +407,14 @@ body {
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border-color);
     color: white;
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.2);
 }
 
 .btn-accent {
@@ -461,10 +461,10 @@ body {
 
 /* Forms */
 .form-input, .form-select, .form-textarea {
-    background: rgba(15, 23, 42, 0.6);
+    background: rgba(255, 255, 255, 0.9);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    color: white;
+    color: var(--text-main);
     padding: 0.65rem 1rem;
     font-family: var(--font-sans);
     font-size: 0.95rem;
@@ -579,7 +579,7 @@ body {
     font-family: var(--font-title);
     font-size: 1.75rem;
     font-weight: 700;
-    color: white;
+    color: var(--text-main);
     margin: 0.15rem 0;
 }
 
@@ -650,7 +650,7 @@ body {
 .activity-avatar {
     width: 40px;
     height: 40px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.03);
     border: 1px solid var(--border-color);
     border-radius: 50%;
     display: flex;
@@ -668,7 +668,7 @@ body {
 .activity-name {
     font-weight: 600;
     font-size: 0.95rem;
-    color: white;
+    color: var(--text-main);
 }
 
 .activity-meta {
@@ -706,11 +706,11 @@ body {
     width: 48px;
     height: 48px;
     margin-bottom: 1rem;
-    color: rgba(255, 255, 255, 0.15);
+    color: rgba(0, 0, 0, 0.15);
 }
 
 .empty-state h3 {
-    color: white;
+    color: var(--text-main);
     font-family: var(--font-title);
     margin-bottom: 0.5rem;
 }
@@ -789,7 +789,7 @@ body {
     flex: 1;
     max-width: 300px;
     height: 6px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.05);
     border-radius: 3px;
     overflow: hidden;
 }
@@ -833,7 +833,7 @@ body {
 }
 
 .attendance-card:hover {
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
 }
 
@@ -855,7 +855,7 @@ body {
     font-family: var(--font-title);
     font-size: 1.1rem;
     font-weight: 600;
-    color: white;
+    color: var(--text-main);
 }
 
 .attendance-card-category {
@@ -1049,7 +1049,7 @@ body {
 
 .member-name-text {
     font-weight: 600;
-    color: white;
+    color: var(--text-main);
 }
 
 .action-buttons-group {
@@ -1102,7 +1102,7 @@ body {
     width: 70px;
     height: 70px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.05);
     border: 3px solid var(--border-color);
     display: flex;
     align-items: center;
@@ -1136,7 +1136,7 @@ body {
 .podium-name {
     font-family: var(--font-title);
     font-weight: 700;
-    color: white;
+    color: var(--text-main);
     text-align: center;
     margin-bottom: 0.25rem;
     font-size: 1rem;
@@ -1173,7 +1173,7 @@ body {
 .podium-bar {
     width: 100%;
     border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.01));
     border: 1px solid var(--border-color);
     border-bottom: none;
 }
@@ -1383,7 +1383,7 @@ body {
     font-family: var(--font-title);
     font-size: 1.25rem;
     font-weight: 700;
-    color: white;
+    color: var(--text-main);
 }
 
 .btn-close-modal {
@@ -1401,7 +1401,7 @@ body {
 
 .btn-close-modal:hover {
     color: white;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.05);
 }
 
 .modal-body {
