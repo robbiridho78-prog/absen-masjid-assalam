@@ -393,7 +393,14 @@ function updateDashboard() {
     
     const sortedLogs = [...state.attendance]
         .filter(log => log.status === "Hadir" || log.status === "Sakit" || log.status === "Ijin" || log.status === "Izin" || log.status === "Alpa" || log.present)
-        .sort((a, b) => b.date.localeCompare(a.date));
+        .sort((a, b) => {
+            if (a.date !== b.date) return b.date.localeCompare(a.date);
+            // If same date, sort by created_at or id (which has timestamp) to put newest clicks on top
+            const aTime = a.created_at || a.id;
+            const bTime = b.created_at || b.id;
+            if (aTime && bTime) return bTime.localeCompare(aTime);
+            return 0;
+        });
         
     const limitLogs = sortedLogs.slice(0, 5);
     
