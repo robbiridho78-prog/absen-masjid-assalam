@@ -448,12 +448,15 @@
                                 <h4>Muat Data Contoh (Demo)</h4>
                                 <p class="text-muted">Mengisi database dengan 20 data jamaah tiruan beserta riwayat absensi salat selama 30 hari ke belakang secara acak. Sangat cocok untuk menguji grafik dashboard dan leaderboard.</p>
                             </div>
-                            <div class="flex-row gap-2">
-                                <button id="btn-generate-mock" class="btn btn-accent">
+                            <div class="flex-row gap-2 flex-wrap">
+                                <button id="btn-generate-mock" class="btn btn-accent flex-1">
                                     <i data-lucide="sparkles"></i> Muat Data Demo
                                 </button>
-                                <button id="btn-clear-db" class="btn btn-danger">
-                                    <i data-lucide="trash-2"></i> Hapus Semua Data
+                                <button id="btn-reset-leaderboard" class="btn btn-warning flex-1">
+                                    <i data-lucide="refresh-ccw"></i> Reset Absen (Mulai Musim Baru)
+                                </button>
+                                <button id="btn-clear-db" class="btn btn-danger flex-1">
+                                    <i data-lucide="trash-2"></i> Hapus Semua Data (Termasuk Jamaah)
                                 </button>
                             </div>
                         </div>

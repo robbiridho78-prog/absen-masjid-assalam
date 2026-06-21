@@ -292,6 +292,7 @@ function initializeUI() {
     document.getElementById("btn-export-csv").addEventListener("click", exportDataCSV);
     document.getElementById("import-json-file").addEventListener("change", importDataJSON);
     document.getElementById("btn-generate-mock").addEventListener("click", handleGenerateMock);
+    document.getElementById("btn-reset-leaderboard").addEventListener("click", handleResetLeaderboard);
     document.getElementById("btn-clear-db").addEventListener("click", handleClearDatabase);
 }
 
@@ -1183,6 +1184,23 @@ function handleClearDatabase() {
         
         updateDashboard();
         showToast("Database dibersihkan sepenuhnya", "danger");
+    }
+}
+
+async function handleResetLeaderboard() {
+    if (confirm("Apakah Anda yakin ingin me-reset Papan Peringkat? Ini akan menghapus semua riwayat kehadiran jamaah, tetapi data nama jamaah tetap aman. Gunakan ini untuk memulai musim/bulan baru.")) {
+        state.attendance = [];
+        saveToLocalStorage();
+        updateDashboard();
+        renderLeaderboardTab();
+        
+        if (window.db) {
+            showToast("Menghapus riwayat absen di server... Mohon tunggu.", "warning");
+            await window.db.deleteAllAttendance();
+            showToast("Papan Peringkat berhasil di-reset!", "success");
+        } else {
+            showToast("Papan Peringkat berhasil di-reset (Lokal)!", "success");
+        }
     }
 }
 
