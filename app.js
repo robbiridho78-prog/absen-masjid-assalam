@@ -392,7 +392,7 @@ function updateDashboard() {
     recentList.innerHTML = "";
     
     const sortedLogs = [...state.attendance]
-        .filter(log => log.status === "Hadir" || log.status === "Sakit" || log.status === "Ijin" || log.present)
+        .filter(log => log.status === "Hadir" || log.status === "Sakit" || log.status === "Ijin" || log.status === "Izin" || log.status === "Alpa" || log.present)
         .sort((a, b) => b.date.localeCompare(a.date));
         
     const limitLogs = sortedLogs.slice(0, 5);
@@ -406,14 +406,16 @@ function updateDashboard() {
         `;
     } else {
         limitLogs.forEach(log => {
-            const member = state.jamaah.find(m => m.id === log.memberId);
+            const memberId = log.member_id || log.memberId;
+            const member = state.jamaah.find(m => m.id === memberId);
             if (member) {
                 const initials = member.name.substring(0, 2).toUpperCase();
                 const status = log.status || "Hadir";
                 
                 let badgeClass = "emerald";
                 if (status === "Sakit") badgeClass = "blue";
-                else if (status === "Ijin") badgeClass = "gold";
+                else if (status === "Ijin" || status === "Izin") badgeClass = "gold";
+                else if (status === "Alpa") badgeClass = "red";
                 
                 const item = document.createElement("div");
                 item.className = "activity-item";
@@ -1033,16 +1035,28 @@ function exportDataCSV() {
     }
     
     let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Nama,Gender,Kategori Umur,Telepon,Alamat,Total Kehadiran,Streak Terkini\n";
+    csvContent += "Nama,Gender,Kategori Umur,Telepon,Alamat,Total Hadir,Total Izin,Total Sakit,Total Alpa\n";
     
     state.jamaah.forEach(m => {
-        const streak = calculateMemberStreak(m.id);
-        const total = countMemberAttendance(m.id);
         const name = `"${m.name.replace(/"/g, '""')}"`;
         const addr = `"${(m.address || '').replace(/"/g, '""')}"`;
         const phone = `"${m.phone || ''}"`;
         
-        csvContent += `${name},${m.gender},${m.category},${phone},${addr},${total},${streak}\n`;
+        let hadir = 0;
+        let izin = 0;
+        let sakit = 0;
+        let alpa = 0;
+        
+        state.attendance.forEach(log => {
+            if (log.member_id === m.id || log.memberId === m.id) {
+                if (log.status === 'Hadir' || log.present) hadir++;
+                else if (log.status === 'Ijin' || log.status === 'Izin') izin++;
+                else if (log.status === 'Sakit') sakit++;
+                else if (log.status === 'Alpa') alpa++;
+            }
+        });
+        
+        csvContent += `${name},${m.gender},${m.category},${phone},${addr},${hadir},${izin},${sakit},${alpa}\n`;
     });
     
     const encodedUri = encodeURI(csvContent);
