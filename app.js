@@ -329,7 +329,17 @@ function updateDashboard() {
     document.getElementById("stat-total-jamaah").textContent = totalJamaah;
     
     // 2. Today's Stats
-    const todayStr = new Date().toISOString().split('T')[0];
+    const datePicker = document.getElementById("attendance-date");
+    let todayStr;
+    if (datePicker && datePicker.value) {
+        todayStr = datePicker.value;
+    } else {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        todayStr = `${yyyy}-${mm}-${dd}`;
+    }
     const todayLogs = state.attendance.filter(log => log.date === todayStr);
     
     const countHadir = todayLogs.filter(log => log.status === "Hadir" || log.present).length;
