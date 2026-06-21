@@ -2,12 +2,12 @@
    DESIGN SYSTEM & VARIABLES
    ========================================================================== */
 :root {
-    --bg-primary: #eff6ff; /* Light green */
-    --bg-secondary: #dbeafe; /* Slightly darker light green */
-    --bg-card: rgba(255, 255, 255, 0.85); /* White cards */
-    --bg-card-hover: rgba(255, 255, 255, 1);
-    --border-color: rgba(59, 130, 246, 0.2);
-    --border-color-hover: rgba(37, 99, 235, 0.5);
+    --bg-primary: #f0f4f8; /* Light green */
+    --bg-secondary: #ffffff; /* Slightly darker light green */
+    --bg-card: #ffffff; /* White cards */
+    --bg-card-hover: #f8fafc;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --border-color-hover: rgba(59, 130, 246, 0.4);
     
     /* Brand Palette */
     --color-primary: #10b981; /* Emerald Green */
@@ -22,8 +22,8 @@
     --color-purple: #8b5cf6;
     
     /* Text Colors */
-    --text-main: #000000; /* Dark slate text for readability */
-    --text-muted: #1e293b; /* Muted dark slate */
+    --text-main: #0f172a; /* Dark slate text for readability */
+    --text-muted: #64748b; /* Muted dark slate */
     
     /* Fonts & Radii */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -1339,7 +1339,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(9, 13, 22, 0.8);
+    background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(8px);
     z-index: 100;
     display: flex;
@@ -1635,7 +1635,7 @@ body {
         left: 0;
         width: 100%;
         height: 65px;
-        background: rgba(9, 13, 22, 0.95);
+        background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         border-top: 1px solid var(--border-color);
         border-bottom: none;
