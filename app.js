@@ -336,14 +336,11 @@ function updateDashboard() {
     const countIzin = todayLogs.filter(log => log.status === "Ijin" || log.status === "Izin").length;
     const countSakit = todayLogs.filter(log => log.status === "Sakit").length;
     const countAlpa = todayLogs.filter(log => log.status === "Alpa").length;
-    // Also consider those not marked as Alpa implicitly
-    const countBelumAbsen = totalJamaah - (countHadir + countIzin + countSakit + countAlpa);
-    const totalAlpaReal = countAlpa + countBelumAbsen;
     
     const pctHadir = totalJamaah > 0 ? Math.round((countHadir / totalJamaah) * 100) : 0;
     const pctIzin = totalJamaah > 0 ? Math.round((countIzin / totalJamaah) * 100) : 0;
     const pctSakit = totalJamaah > 0 ? Math.round((countSakit / totalJamaah) * 100) : 0;
-    const pctAlpa = totalJamaah > 0 ? Math.round((totalAlpaReal / totalJamaah) * 100) : 0;
+    const pctAlpa = totalJamaah > 0 ? Math.round((countAlpa / totalJamaah) * 100) : 0;
     
     const elHadirPct = document.getElementById("stat-today-attendance");
     if(elHadirPct) elHadirPct.textContent = `${pctHadir}%`;
@@ -361,7 +358,7 @@ function updateDashboard() {
     if(elSakitPct) elSakitPct.textContent = `${pctSakit}% dari total`;
     
     const elAlpaCount = document.getElementById("stat-alpa-count");
-    if(elAlpaCount) elAlpaCount.textContent = totalAlpaReal;
+    if(elAlpaCount) elAlpaCount.textContent = countAlpa;
     const elAlpaPct = document.getElementById("stat-alpa-pct");
     if(elAlpaPct) elAlpaPct.textContent = `${pctAlpa}% dari total`;
     
@@ -1064,13 +1061,7 @@ function exportDataCSV() {
             }
         });
         
-        // Calculate Total Alpa: Total Meetings - (Hadir + Izin + Sakit)
-        const uniqueDates = [...new Set(state.attendance.map(log => log.date))];
-        const totalMeetings = uniqueDates.length;
-        let alpa = totalMeetings - (hadir + izin + sakit);
-        if (alpa < 0) alpa = 0; // Fallback just in case
-        
-        csvContent += `${name};${m.gender};${m.category};${phone};${addr};${hadir};${izin};${sakit};${alpa}\n`;
+        csvContent += `${name};${m.gender};${m.category};${phone};${addr};${hadir};${izin};${sakit};${explicitAlpa}\n`;
     });
     
     const encodedUri = encodeURI(csvContent);
