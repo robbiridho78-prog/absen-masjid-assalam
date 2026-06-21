@@ -1575,120 +1575,92 @@ body {
    ========================================================================== */
 
 
-@media (max-width: 1024px) {
-    /* Mobile App Container Layout */
-    .app-container {
-        padding-bottom: 70px; /* Space for bottom nav */
-    }
 
-    /* Transform Sidebar to Bottom Navigation */
+@media (max-width: 1024px) {
+    .app-container {
+        flex-direction: column;
+    }
+    
     .sidebar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
         width: 100%;
-        height: 65px;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-top: 1px solid var(--border-color);
-        border-bottom: none;
-        z-index: 1000;
-        padding: 0;
+        height: auto;
+        padding: 1rem;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        z-index: 100;
+    }
+    
+    .sidebar-brand {
         display: flex;
         justify-content: center;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
     }
-
-    .sidebar-brand, .sidebar-footer {
-        display: none !important;
-    }
-
+    
     .sidebar-nav {
+        display: flex;
         flex-direction: row;
-        justify-content: space-around;
-        align-items: center;
-        width: 100%;
-        gap: 0;
-        padding: 0 0.5rem;
-    }
-
-    .sidebar-divider {
-        display: none;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
     }
 
     .nav-item {
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 0.25rem;
-        padding: 0.5rem 0;
-        flex: 1;
+        padding: 0.5rem 0.8rem;
+        font-size: 0.85rem;
         border: none !important;
-        background: transparent !important;
-    }
-
-    .nav-item i {
-        width: 20px;
-        height: 20px;
-    }
-
-    .nav-item span {
-        font-size: 0.65rem;
-        font-weight: 500;
+        background: transparent;
+        flex-direction: row;
     }
 
     .nav-item.active {
         color: var(--color-primary);
+        font-weight: bold;
+        background: rgba(59, 130, 246, 0.1) !important;
+        border-radius: var(--radius-sm);
     }
     
-    .nav-item.active i {
-        color: var(--color-primary);
-        filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.5));
+    .sidebar-divider {
+        width: 100%;
+        height: 1px;
+        background: var(--border-color);
+        margin: 0.5rem 0;
+        display: block !important;
     }
 
-    /* Hide desktop logout in bottom nav, use header logout instead */
     #btn-logout {
+        display: flex !important;
+        width: 100%;
+        justify-content: center;
+        background: #fee2e2;
+        color: #ef4444 !important;
+        border-radius: var(--radius-md);
+        padding: 0.75rem;
+        margin-top: 0.25rem;
+        font-weight: bold;
+    }
+
+    .sidebar-footer {
+        display: none !important;
+    }
+    
+    .btn-mobile-logout {
         display: none !important;
     }
 
-    .btn-mobile-logout {
-        display: flex;
-    }
-
-    /* Content Header Adjustments */
     .content-header {
-        flex-direction: row;
-        justify-content: space-between;
+        flex-direction: column;
         align-items: flex-start;
-        gap: 1rem;
+        gap: 0.5rem;
         padding: 1rem;
     }
 
-    .header-title h2 {
-        font-size: 1.5rem;
-    }
-    
-    .prayer-indicator-card {
-        width: 100%;
-        justify-content: space-between;
-    }
-    
-    /* Compact Attendance Cards */
     .jamaah-attendance-grid {
         grid-template-columns: 1fr;
         gap: 0.75rem;
     }
 
-    .attendance-card {
-        padding: 1rem;
-        min-height: auto;
-    }
-
-    .btn-status {
-        padding: 0.5rem 0.2rem;
-        font-size: 0.75rem;
-    }
-    
     .filter-bar {
         flex-direction: column;
         align-items: stretch;
@@ -1697,34 +1669,13 @@ body {
     .filter-group, .search-box-wrapper, .filter-actions {
         width: 100%;
     }
-    
-    .filter-actions .btn {
-        width: 100%;
-    }
-    
-    /* Responsive Tables */
-    .members-header-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .search-filter-wrapper {
-        flex-direction: column;
-        align-items: stretch;
-        padding: 0.5rem !important;
-    }
-    
-    .btn-add-member {
-        width: 100%;
-    }
 
     .data-table th, .data-table td {
         padding: 0.75rem 1rem;
         font-size: 0.85rem;
-        white-space: nowrap; /* Prevent table squish */
+        white-space: nowrap;
     }
     
-    /* Compact Podium for Mobile */
     .podium-container {
         gap: 0.5rem;
         height: 240px;
@@ -1739,37 +1690,9 @@ body {
         width: 45px;
         height: 45px;
     }
-    
-    .podium-spot.first .podium-avatar {
-        width: 60px;
-        height: 60px;
-    }
 
-    .podium-spot.first .podium-bar {
-        height: 100px;
-    }
-    .podium-spot.second .podium-bar {
-        height: 70px;
-    }
-    .podium-spot.third .podium-bar {
-        height: 45px;
-    }
-    
-    .podium-name {
-        font-size: 0.75rem;
-    }
-    
-    .streak-value {
-        font-size: 0.9rem;
-    }
-
-    /* Login Screen Adjustment */
     .login-card {
         padding: 1.5rem;
         width: 90%;
     }
-}
-
-.form-input::placeholder, .form-textarea::placeholder {
-    color: rgba(0, 0, 0, 0.5);
 }
