@@ -789,10 +789,10 @@ function renderMembersTab() {
             <td>${m.category}</td>
             <td>${m.phone || '<span class="text-muted">-</span>'}</td>
             <td>${m.address || '<span class="text-muted">-</span>'}</td>
-            <td class="text-center"><strong>${hadir}</strong> <span style="font-size: 0.85em; color: #16a34a;">(${pctHadir}%)</span></td>
-            <td class="text-center"><strong>${izin}</strong> <span style="font-size: 0.85em; color: #ca8a04;">(${pctIzin}%)</span></td>
-            <td class="text-center"><strong>${sakit}</strong> <span style="font-size: 0.85em; color: #2563eb;">(${pctSakit}%)</span></td>
-            <td class="text-center"><strong>${totalAlpa}</strong> <span style="font-size: 0.85em; color: #dc2626;">(${pctAlpa}%)</span></td>
+            <td class="text-center"><strong>${hadir}</strong><br><span style="font-size: 0.8em; color: #16a34a;">(${pctHadir}%)</span></td>
+            <td class="text-center"><strong>${izin}</strong><br><span style="font-size: 0.8em; color: #ca8a04;">(${pctIzin}%)</span></td>
+            <td class="text-center"><strong>${sakit}</strong><br><span style="font-size: 0.8em; color: #2563eb;">(${pctSakit}%)</span></td>
+            <td class="text-center"><strong>${totalAlpa}</strong><br><span style="font-size: 0.8em; color: #dc2626;">(${pctAlpa}%)</span></td>
             <td>
                 <div class="action-buttons-group">
                     <button class="btn btn-icon edit" onclick="editMember('${m.id}')" title="Edit Data">
