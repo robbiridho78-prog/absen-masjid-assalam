@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Chart.js for premium analytical dashboard -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css?v=11">
+    <link rel="stylesheet" href="style.css?v=12">
     
     <!-- PWA Settings -->
     <link rel="manifest" href="manifest.json">
@@ -138,22 +138,42 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon-wrapper blue">
-                            <i data-lucide="award"></i>
+                            <i data-lucide="info"></i>
                         </div>
                         <div class="stat-data">
-                            <span class="stat-label">Rata-rata Harian</span>
-                            <h3 class="stat-value" id="stat-avg-attendance">0%</h3>
-                            <span class="stat-trend blue">Bulan ini</span>
+                            <span class="stat-label">Izin Hari Ini</span>
+                            <h3 class="stat-value" id="stat-izin-count">0</h3>
+                            <span class="stat-trend blue" id="stat-izin-pct">0% dari total</span>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon-wrapper purple">
-                            <i data-lucide="zap"></i>
+                            <i data-lucide="thermometer"></i>
                         </div>
                         <div class="stat-data">
-                            <span class="stat-label">Jamaah Istiqamah</span>
-                            <h3 class="stat-value" id="stat-active-streaks">0</h3>
-                            <span class="stat-trend purple">Streak ≥ 5 hari</span>
+                            <span class="stat-label">Sakit Hari Ini</span>
+                            <h3 class="stat-value" id="stat-sakit-count">0</h3>
+                            <span class="stat-trend purple" id="stat-sakit-pct">0% dari total</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                            <i data-lucide="user-x"></i>
+                        </div>
+                        <div class="stat-data">
+                            <span class="stat-label">Tidak Hadir (Alpa)</span>
+                            <h3 class="stat-value" id="stat-alpa-count">0</h3>
+                            <span class="stat-trend" style="color: #ef4444;" id="stat-alpa-pct">0% dari total</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                            <i data-lucide="bar-chart-2"></i>
+                        </div>
+                        <div class="stat-data">
+                            <span class="stat-label">Rata-rata Pengajian Senin & Kamis</span>
+                            <h3 class="stat-value" id="stat-avg-senin-kamis">0%</h3>
+                            <span class="stat-trend green">30 Hari Terakhir</span>
                         </div>
                     </div>
                 </div>

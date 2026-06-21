@@ -325,45 +325,67 @@ function showToast(message, type = "success") {
 // ==========================================================================
 function updateDashboard() {
     // 1. Total Registered
-    document.getElementById("stat-total-jamaah").textContent = state.jamaah.length;
+    const totalJamaah = state.jamaah.length;
+    document.getElementById("stat-total-jamaah").textContent = totalJamaah;
     
-    // 2. Today's Attendance
+    // 2. Today's Stats
     const todayStr = new Date().toISOString().split('T')[0];
-    const todayLogs = state.attendance.filter(log => log.date === todayStr && (log.status === "Hadir" || log.present));
+    const todayLogs = state.attendance.filter(log => log.date === todayStr);
     
-    // Total possible attendance slots today = count of jamaah
-    const totalPossibleToday = state.jamaah.length;
-    let todayPercentage = 0;
-    if (totalPossibleToday > 0) {
-        todayPercentage = Math.round((todayLogs.length / totalPossibleToday) * 100);
-    }
+    const countHadir = todayLogs.filter(log => log.status === "Hadir" || log.present).length;
+    const countIzin = todayLogs.filter(log => log.status === "Ijin" || log.status === "Izin").length;
+    const countSakit = todayLogs.filter(log => log.status === "Sakit").length;
+    const countAlpa = todayLogs.filter(log => log.status === "Alpa").length;
+    // Also consider those not marked as Alpa implicitly
+    const countBelumAbsen = totalJamaah - (countHadir + countIzin + countSakit + countAlpa);
+    const totalAlpaReal = countAlpa + countBelumAbsen;
     
-    document.getElementById("stat-today-attendance").textContent = `${todayPercentage}%`;
-    document.getElementById("stat-today-count").textContent = `${todayLogs.length} Kehadiran`;
+    const pctHadir = totalJamaah > 0 ? Math.round((countHadir / totalJamaah) * 100) : 0;
+    const pctIzin = totalJamaah > 0 ? Math.round((countIzin / totalJamaah) * 100) : 0;
+    const pctSakit = totalJamaah > 0 ? Math.round((countSakit / totalJamaah) * 100) : 0;
+    const pctAlpa = totalJamaah > 0 ? Math.round((totalAlpaReal / totalJamaah) * 100) : 0;
     
-    // 3. Average Attendance
-    // Let's compute average daily attendance across all unique logged dates in the past 30 days
+    const elHadirPct = document.getElementById("stat-today-attendance");
+    if(elHadirPct) elHadirPct.textContent = `${pctHadir}%`;
+    const elHadirCount = document.getElementById("stat-today-count");
+    if(elHadirCount) elHadirCount.textContent = `${countHadir} Hadir`;
+    
+    const elIzinCount = document.getElementById("stat-izin-count");
+    if(elIzinCount) elIzinCount.textContent = countIzin;
+    const elIzinPct = document.getElementById("stat-izin-pct");
+    if(elIzinPct) elIzinPct.textContent = `${pctIzin}% dari total`;
+    
+    const elSakitCount = document.getElementById("stat-sakit-count");
+    if(elSakitCount) elSakitCount.textContent = countSakit;
+    const elSakitPct = document.getElementById("stat-sakit-pct");
+    if(elSakitPct) elSakitPct.textContent = `${pctSakit}% dari total`;
+    
+    const elAlpaCount = document.getElementById("stat-alpa-count");
+    if(elAlpaCount) elAlpaCount.textContent = totalAlpaReal;
+    const elAlpaPct = document.getElementById("stat-alpa-pct");
+    if(elAlpaPct) elAlpaPct.textContent = `${pctAlpa}% dari total`;
+    
+    // 3. Average Attendance Senin & Kamis
+    // Filter out only dates that are Monday (1) or Thursday (4)
     const uniqueDates = [...new Set(state.attendance.map(log => log.date))];
-    const last30Days = uniqueDates.slice(-30);
-    let avgAttendancePct = 0;
-    
-    if (last30Days.length > 0 && state.jamaah.length > 0) {
-        let sumPct = 0;
-        last30Days.forEach(date => {
-            const count = state.attendance.filter(log => log.date === date && (log.status === "Hadir" || log.present)).length;
-            sumPct += (count / state.jamaah.length) * 100;
-        });
-        avgAttendancePct = Math.round(sumPct / last30Days.length);
-    }
-    document.getElementById("stat-avg-attendance").textContent = `${avgAttendancePct}%`;
-    
-    // 4. Active Streaks Count
-    let activeStreaksCount = 0;
-    state.jamaah.forEach(m => {
-        const streak = calculateMemberStreak(m.id);
-        if (streak >= 5) activeStreaksCount++;
+    const uniqueSeninKamis = uniqueDates.filter(d => {
+        const day = new Date(d).getDay();
+        return day === 1 || day === 4;
     });
-    document.getElementById("stat-active-streaks").textContent = activeStreaksCount;
+    
+    const last30SeninKamis = uniqueSeninKamis.slice(-30);
+    let avgSeninKamisPct = 0;
+    
+    if (last30SeninKamis.length > 0 && totalJamaah > 0) {
+        let sumPct = 0;
+        last30SeninKamis.forEach(date => {
+            const count = state.attendance.filter(log => log.date === date && (log.status === "Hadir" || log.present)).length;
+            sumPct += (count / totalJamaah) * 100;
+        });
+        avgSeninKamisPct = Math.round(sumPct / last30SeninKamis.length);
+    }
+    const elAvgSeninKamis = document.getElementById("stat-avg-senin-kamis");
+    if(elAvgSeninKamis) elAvgSeninKamis.textContent = `${avgSeninKamisPct}%`;
     
     // Recent logs list rendering
     const recentList = document.getElementById("recent-activities-list");
@@ -492,10 +514,13 @@ function renderAttendanceTab() {
                     <i data-lucide="check-circle-2"></i> Hadir
                 </button>
                 <button class="btn-status btn-status-sakit ${currentStatus === 'Sakit' ? 'active' : ''}" onclick="setAttendanceStatus('${m.id}', 'Sakit')" title="Tandai Sakit">
-                    <i data-lucide="activity"></i> Sakit
+                    <i data-lucide="thermometer"></i> Sakit
                 </button>
-                <button class="btn-status btn-status-ijin ${currentStatus === 'Ijin' ? 'active' : ''}" onclick="setAttendanceStatus('${m.id}', 'Ijin')" title="Tandai Ijin">
-                    <i data-lucide="info"></i> Ijin
+                <button class="btn-status btn-status-ijin ${currentStatus === 'Ijin' ? 'active' : ''}" onclick="setAttendanceStatus('${m.id}', 'Ijin')" title="Tandai Izin">
+                    <i data-lucide="info"></i> Izin
+                </button>
+                <button class="btn-status btn-status-alpa ${currentStatus === 'Alpa' ? 'active' : ''}" onclick="setAttendanceStatus('${m.id}', 'Alpa')" title="Tandai Alpa">
+                    <i data-lucide="x-circle"></i> Alpa
                 </button>
             </div>
         `;
@@ -1207,20 +1232,39 @@ function initializeCharts() {
         type: 'line',
         data: {
             labels: [], // Populated dynamically
-            datasets: [{
-                label: 'Jumlah Kehadiran',
-                data: [], // Populated dynamically
-                borderColor: '#10b981',
-                borderWidth: 3,
-                backgroundColor: primaryGradient,
-                fill: true,
-                tension: 0.35,
-                pointBackgroundColor: '#10b981',
-                pointBorderColor: '#ffffff',
-                pointHoverRadius: 7,
-                pointHoverBackgroundColor: '#10b981',
-                pointHoverBorderColor: '#ffffff'
-            }]
+            datasets: [
+                {
+                    label: 'Hadir',
+                    data: [], // Populated dynamically
+                    borderColor: '#10b981',
+                    borderWidth: 3,
+                    backgroundColor: primaryGradient,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#ffffff'
+                },
+                {
+                    label: 'Izin',
+                    data: [], // Populated dynamically
+                    borderColor: '#3b82f6',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    fill: false,
+                    tension: 0.35,
+                    pointBackgroundColor: '#3b82f6'
+                },
+                {
+                    label: 'Sakit',
+                    data: [], // Populated dynamically
+                    borderColor: '#a855f7',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    fill: false,
+                    tension: 0.35,
+                    pointBackgroundColor: '#a855f7'
+                }
+            ]
         },
         options: {
             responsive: true,
@@ -1255,26 +1299,42 @@ function initializeCharts() {
 function updateChartsData() {
     if (!trendChart) return;
     
-    // Compute next 30 days daily total presence sum (starting from today)
-    const today = new Date();
+    // Compute PAST 30 occurrences of Senin (Monday) & Kamis (Thursday)
     const dates = [];
-    const totals = [];
+    const totalsHadir = [];
+    const totalsIzin = [];
+    const totalsSakit = [];
     
-    for (let i = 0; i < 30; i++) {
-        const d = new Date();
-        d.setDate(today.getDate() + i);
+    // Find past 30 valid dates
+    const today = new Date();
+    let currentD = new Date(today);
+    const validDates = [];
+    
+    while(validDates.length < 15) { // Show last 15 meetings
+        const day = currentD.getDay();
+        if (day === 1 || day === 4) {
+            validDates.unshift(new Date(currentD)); // Insert at beginning to reverse order
+        }
+        currentD.setDate(currentD.getDate() - 1);
+    }
+    
+    validDates.forEach(d => {
         const dStr = d.toISOString().split('T')[0];
-        
-        // Format label as "12 Jun"
         const label = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
         dates.push(label);
         
-        // Sum checkins this date
-        const count = state.attendance.filter(log => log.date === dStr && (log.status === "Hadir" || log.present)).length;
-        totals.push(count);
-    }
+        const countHadir = state.attendance.filter(log => log.date === dStr && (log.status === "Hadir" || log.present)).length;
+        const countIzin = state.attendance.filter(log => log.date === dStr && (log.status === "Ijin" || log.status === "Izin")).length;
+        const countSakit = state.attendance.filter(log => log.date === dStr && log.status === "Sakit").length;
+        
+        totalsHadir.push(countHadir);
+        totalsIzin.push(countIzin);
+        totalsSakit.push(countSakit);
+    });
     
     trendChart.data.labels = dates;
-    trendChart.data.datasets[0].data = totals;
+    trendChart.data.datasets[0].data = totalsHadir;
+    trendChart.data.datasets[1].data = totalsIzin;
+    trendChart.data.datasets[2].data = totalsSakit;
     trendChart.update();
 }
