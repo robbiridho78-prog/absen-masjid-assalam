@@ -1572,57 +1572,9 @@ body {
 
    RESPONSIVE DESIGN (MEDIA QUERIES)
    ========================================================================== */
-@media (max-width: 1024px) {
-    .app-container {
-        flex-direction: column;
-    }
-    
-    .sidebar {
-        width: 100%;
-        height: auto;
-        padding: 1rem 1.5rem;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
-        position: relative;
-    }
-    
-    .sidebar-brand {
-        margin-bottom: 1.5rem;
-    }
-    
-    .sidebar-nav {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 0.25rem;
-    }
-    
-    .nav-item {
-        padding: 0.6rem 0.85rem;
-        font-size: 0.85rem;
-    }
-    
-    .nav-item.active {
-        border-left: none;
-        border-bottom: 3px solid var(--color-primary);
-        padding-left: 0.85rem;
-        padding-bottom: calc(0.6rem - 3px);
-    }
-    
-    .sidebar-footer {
-        display: none;
-    }
-    
-    .main-content {
-        padding: 1.5rem;
-        height: auto;
-    }
-    
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-}
 
-@media (max-width: 640px) {
+
+@media (max-width: 1024px) {
     /* Mobile App Container Layout */
     .app-container {
         padding-bottom: 70px; /* Space for bottom nav */
@@ -1643,7 +1595,7 @@ body {
         padding: 0;
         display: flex;
         justify-content: center;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
     }
 
     .sidebar-brand, .sidebar-footer {
