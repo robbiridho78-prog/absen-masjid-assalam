@@ -1053,16 +1053,22 @@ function exportDataCSV() {
         let hadir = 0;
         let izin = 0;
         let sakit = 0;
-        let alpa = 0;
+        let explicitAlpa = 0;
         
         state.attendance.forEach(log => {
             if (log.member_id === m.id || log.memberId === m.id) {
                 if (log.status === 'Hadir' || log.present) hadir++;
                 else if (log.status === 'Ijin' || log.status === 'Izin') izin++;
                 else if (log.status === 'Sakit') sakit++;
-                else if (log.status === 'Alpa') alpa++;
+                else if (log.status === 'Alpa') explicitAlpa++;
             }
         });
+        
+        // Calculate Total Alpa: Total Meetings - (Hadir + Izin + Sakit)
+        const uniqueDates = [...new Set(state.attendance.map(log => log.date))];
+        const totalMeetings = uniqueDates.length;
+        let alpa = totalMeetings - (hadir + izin + sakit);
+        if (alpa < 0) alpa = 0; // Fallback just in case
         
         csvContent += `${name};${m.gender};${m.category};${phone};${addr};${hadir};${izin};${sakit};${alpa}\n`;
     });
