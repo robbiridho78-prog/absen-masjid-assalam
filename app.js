@@ -539,11 +539,29 @@ function renderAttendanceTab() {
     lucide.createIcons();
 }
 
-function updateAttendanceStatsBar(presentCount, totalCount) {
-    document.getElementById("attendance-summary-text").textContent = `Total Jamaah: ${totalCount} | ${presentCount} Hadir`;
+function updateAttendanceStatsBar() {
+    const dateVal = document.getElementById("attendance-date").value;
+    const totalCount = state.jamaah.length;
+    
+    let countHadir = 0;
+    let countIzin = 0;
+    let countSakit = 0;
+    let countAlpa = 0;
+    
+    state.attendance.forEach(log => {
+        if (log.date === dateVal) {
+            if (log.status === "Hadir" || log.present) countHadir++;
+            else if (log.status === "Ijin" || log.status === "Izin") countIzin++;
+            else if (log.status === "Sakit") countSakit++;
+            else if (log.status === "Alpa") countAlpa++;
+        }
+    });
+    
+    document.getElementById("attendance-summary-text").innerHTML = `<b>Total:</b> ${totalCount} | <b>Hadir:</b> ${countHadir} | <b>Izin:</b> ${countIzin} | <b>Sakit:</b> ${countSakit} | <b>Alpa:</b> <span style="color:var(--danger)">${countAlpa}</span>`;
+    
     let pct = 0;
     if (totalCount > 0) {
-        pct = Math.round((presentCount / totalCount) * 100);
+        pct = Math.round((countHadir / totalCount) * 100);
     }
     document.getElementById("attendance-progress").style.width = `${pct}%`;
 }
@@ -563,10 +581,7 @@ function filterAttendanceCards() {
     });
     
     const dateVal = document.getElementById("attendance-date").value;
-    const presentCount = state.attendance.filter(log => log.date === dateVal && (log.status === "Hadir" || log.present)).length;
-    const totalCount = state.jamaah.length;
-    
-    updateAttendanceStatsBar(presentCount, totalCount);
+    updateAttendanceStatsBar();
 }
 
 // New status setter (Hadir / Sakit / Ijin)
