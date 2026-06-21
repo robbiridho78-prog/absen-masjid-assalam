@@ -1356,7 +1356,7 @@ body {
 }
 
 .modal-container {
-    background: #1e293b;
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
     width: 100%;
