@@ -746,6 +746,9 @@ function renderMembersTab() {
         return;
     }
     
+    const uniqueDates = [...new Set(state.attendance.map(log => log.date))];
+    const totalMeetings = uniqueDates.length;
+    
     const sorted = [...state.jamaah].sort((a, b) => a.name.localeCompare(b.name));
     
     sorted.forEach(m => {
@@ -756,7 +759,24 @@ function renderMembersTab() {
         tr.setAttribute("data-category", m.category);
         
         const initials = m.name.substring(0, 2).toUpperCase();
-        const totalPresence = countMemberAttendance(m.id);
+        
+        let hadir = 0, izin = 0, sakit = 0, explicitAlpa = 0;
+        state.attendance.forEach(log => {
+            if (log.member_id === m.id || log.memberId === m.id) {
+                if (log.status === 'Hadir' || log.present) hadir++;
+                else if (log.status === 'Ijin' || log.status === 'Izin') izin++;
+                else if (log.status === 'Sakit') sakit++;
+                else if (log.status === 'Alpa') explicitAlpa++;
+            }
+        });
+        
+        // Calculate implicit Alpa (missed meetings)
+        const totalAlpa = explicitAlpa + Math.max(0, totalMeetings - (hadir + izin + sakit + explicitAlpa));
+        
+        const pctHadir = totalMeetings > 0 ? Math.round((hadir / totalMeetings) * 100) : 0;
+        const pctIzin = totalMeetings > 0 ? Math.round((izin / totalMeetings) * 100) : 0;
+        const pctSakit = totalMeetings > 0 ? Math.round((sakit / totalMeetings) * 100) : 0;
+        const pctAlpa = totalMeetings > 0 ? Math.round((totalAlpa / totalMeetings) * 100) : 0;
         
         tr.innerHTML = `
             <td>
@@ -769,7 +789,10 @@ function renderMembersTab() {
             <td>${m.category}</td>
             <td>${m.phone || '<span class="text-muted">-</span>'}</td>
             <td>${m.address || '<span class="text-muted">-</span>'}</td>
-            <td class="text-center"><strong>${totalPresence}</strong></td>
+            <td class="text-center"><strong>${hadir}</strong> <span style="font-size: 0.85em; color: #16a34a;">(${pctHadir}%)</span></td>
+            <td class="text-center"><strong>${izin}</strong> <span style="font-size: 0.85em; color: #ca8a04;">(${pctIzin}%)</span></td>
+            <td class="text-center"><strong>${sakit}</strong> <span style="font-size: 0.85em; color: #2563eb;">(${pctSakit}%)</span></td>
+            <td class="text-center"><strong>${totalAlpa}</strong> <span style="font-size: 0.85em; color: #dc2626;">(${pctAlpa}%)</span></td>
             <td>
                 <div class="action-buttons-group">
                     <button class="btn btn-icon edit" onclick="editMember('${m.id}')" title="Edit Data">
