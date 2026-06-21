@@ -114,5 +114,17 @@ window.db = {
         } catch (error) {
             console.error("Fetch error deleting attendance:", error);
         }
+    },
+
+    async deleteAllAttendance() {
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/attendance?id=not.is.null`, {
+                method: 'DELETE',
+                headers
+            });
+            if (!res.ok) console.error("Error deleting all attendance:", await res.text());
+        } catch (error) {
+            console.error("Fetch error deleting all attendance:", error);
+        }
     }
 };

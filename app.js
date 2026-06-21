@@ -976,16 +976,16 @@ function renderLeaderboardTab() {
         document.getElementById(podiumStreaks[i]).textContent = "0";
     }
     
-    // Populate podium if data available
-    if (sortedList.length > 0) {
+    // Populate podium if data available and they have actually attended at least once
+    if (sortedList.length > 0 && sortedList[0].total > 0) {
         document.getElementById("podium-1-name").textContent = sortedList[0].name;
         document.getElementById("podium-1-streak").textContent = sortedList[0].streak;
     }
-    if (sortedList.length > 1) {
+    if (sortedList.length > 1 && sortedList[1].total > 0) {
         document.getElementById("podium-2-name").textContent = sortedList[1].name;
         document.getElementById("podium-2-streak").textContent = sortedList[1].streak;
     }
-    if (sortedList.length > 2) {
+    if (sortedList.length > 2 && sortedList[2].total > 0) {
         document.getElementById("podium-3-name").textContent = sortedList[2].name;
         document.getElementById("podium-3-streak").textContent = sortedList[2].streak;
     }
@@ -1196,7 +1196,15 @@ async function handleResetLeaderboard() {
         
         if (window.db) {
             showToast("Menghapus riwayat absen di server... Mohon tunggu.", "warning");
-            await window.db.deleteAllAttendance();
+            try {
+                if (typeof window.db.deleteAllAttendance === 'function') {
+                    await window.db.deleteAllAttendance();
+                } else {
+                    console.warn("Fungsi deleteAllAttendance tidak ditemukan, mungkin supabase-client.js belum diupdate.");
+                }
+            } catch (err) {
+                console.error("Gagal menghapus di server:", err);
+            }
             showToast("Papan Peringkat berhasil di-reset!", "success");
         } else {
             showToast("Papan Peringkat berhasil di-reset (Lokal)!", "success");
