@@ -1041,8 +1041,9 @@ function exportDataCSV() {
         return;
     }
     
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Nama,Gender,Kategori Umur,Telepon,Alamat,Total Hadir,Total Izin,Total Sakit,Total Alpa\n";
+    // Use BOM \uFEFF to force UTF-8 in Excel, and semicolon (;) as delimiter which is standard for Indonesian Excel
+    let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+    csvContent += "Nama;Gender;Kategori Umur;Telepon;Alamat;Total Hadir;Total Izin;Total Sakit;Total Alpa\n";
     
     state.jamaah.forEach(m => {
         const name = `"${m.name.replace(/"/g, '""')}"`;
@@ -1063,7 +1064,7 @@ function exportDataCSV() {
             }
         });
         
-        csvContent += `${name},${m.gender},${m.category},${phone},${addr},${hadir},${izin},${sakit},${alpa}\n`;
+        csvContent += `${name};${m.gender};${m.category};${phone};${addr};${hadir};${izin};${sakit};${alpa}\n`;
     });
     
     const encodedUri = encodeURI(csvContent);
