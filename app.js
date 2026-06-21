@@ -229,10 +229,15 @@ function initializeUI() {
             tabPanels.forEach(panel => panel.classList.remove("active"));
             
             item.classList.add("active");
-            document.getElementById(`tab-${targetTab}`).classList.add("active");
+            const target = document.getElementById(`tab-${targetTab}`);
+            if (target) target.classList.add("active");
             
-            // Update Headers
-            pageTitle.textContent = item.querySelector("span").textContent;
+            // Set page title
+            if (targetTab === 'leaderboard') {
+                pageTitle.textContent = "Peringkat Jamaah";
+            } else {
+                pageTitle.textContent = item.querySelector("span").textContent;
+            }
             pageSubtitle.textContent = subtitleMap[targetTab] || "";
             
             // Reload specific tab data
