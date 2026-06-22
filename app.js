@@ -351,7 +351,15 @@ function updateDashboard() {
     const countHadir = todayLogs.filter(log => log.status === "Hadir" || log.present).length;
     const countIzin = todayLogs.filter(log => log.status === "Ijin" || log.status === "Izin").length;
     const countSakit = todayLogs.filter(log => log.status === "Sakit").length;
-    const countAlpa = todayLogs.filter(log => log.status === "Alpa").length;
+    let countAlpa = todayLogs.filter(log => log.status === "Alpa").length;
+    
+    // Hitung Alpa implisit (yang tidak diabsen sama sekali hari ini)
+    if (todayLogs.length > 0) {
+        const totalDiabsen = countHadir + countIzin + countSakit + countAlpa;
+        if (totalDiabsen < totalJamaah) {
+            countAlpa += (totalJamaah - totalDiabsen);
+        }
+    }
     
     const pctHadir = totalJamaah > 0 ? Math.round((countHadir / totalJamaah) * 100) : 0;
     const pctIzin = totalJamaah > 0 ? Math.round((countIzin / totalJamaah) * 100) : 0;
