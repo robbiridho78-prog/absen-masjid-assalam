@@ -604,7 +604,9 @@ function filterAttendanceCards() {
     cards.forEach(card => {
         const name = card.getAttribute("data-member-name");
         
-        if (q.length > 0 && name.includes(q)) {
+        if (q === "") {
+            card.style.display = "flex";
+        } else if (name.includes(q)) {
             card.style.display = "flex";
         } else {
             card.style.display = "none";
