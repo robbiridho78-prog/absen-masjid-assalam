@@ -265,7 +265,6 @@ function initializeUI() {
     
     // Set default attendance filter to today's date
     const todayStr = new Date().toISOString().split('T')[0];
-    dateInput.min = todayStr; // Block past dates
     dateInput.max = "2045-12-31"; // Limit to 2045
     dateInput.value = todayStr;
     
