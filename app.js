@@ -602,7 +602,7 @@ function filterAttendanceCards() {
         const name = card.getAttribute("data-member-name");
         
         if (q === "") {
-            card.style.display = "flex";
+            card.style.display = "none"; // Hide all when search is empty (user request)
         } else if (name.includes(q)) {
             card.style.display = "flex";
         } else {
