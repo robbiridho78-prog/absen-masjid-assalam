@@ -1104,6 +1104,10 @@ function exportDataCSV() {
     let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
     csvContent += "Nama;Gender;Kategori Umur;Telepon;Alamat;Total Hadir;Total Izin;Total Sakit;Total Alpa\n";
     
+    // Calculate total meetings to determine implicit Alpa
+    const uniqueDates = [...new Set(state.attendance.map(log => log.date))];
+    const totalMeetings = uniqueDates.length;
+
     state.jamaah.forEach(m => {
         const name = `"${m.name.replace(/"/g, '""')}"`;
         const addr = `"${(m.address || '').replace(/"/g, '""')}"`;
@@ -1123,7 +1127,9 @@ function exportDataCSV() {
             }
         });
         
-        csvContent += `${name};${m.gender};${m.category};${phone};${addr};${hadir};${izin};${sakit};${explicitAlpa}\n`;
+        const totalAlpa = explicitAlpa + Math.max(0, totalMeetings - (hadir + izin + sakit + explicitAlpa));
+        
+        csvContent += `${name};${m.gender};${m.category};${phone};${addr};${hadir};${izin};${sakit};${totalAlpa}\n`;
     });
     
     const encodedUri = encodeURI(csvContent);
