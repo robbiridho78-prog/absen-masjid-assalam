@@ -263,8 +263,16 @@ function initializeUI() {
     // Date fields in Attendance tab
     const dateInput = document.getElementById("attendance-date");
     
+    // Helper for getting local YYYY-MM-DD
+    function getLocalYMD(dateObj = new Date()) {
+        const yyyy = dateObj.getFullYear();
+        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const dd = String(dateObj.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
     // Set default attendance filter to today's date
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getLocalYMD();
     dateInput.max = "2045-12-31"; // Limit to 2045
     dateInput.value = todayStr;
     
@@ -699,10 +707,11 @@ function calculateMemberStreak(memberId) {
     
     if (uniqueDates.length === 0) return 0;
     
-    const todayStr = new Date().toISOString().split('T')[0];
+    // Find yesterday's data based on local time
+    const todayStr = getLocalYMD();
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const yesterdayStr = getLocalYMD(yesterday);
     
     // If last attendance was not today or yesterday, streak is broken (0)
     const lastDate = uniqueDates[0];
@@ -1088,7 +1097,7 @@ function exportDataJSON() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
     const dlAnchorElem = document.createElement('a');
     dlAnchorElem.setAttribute("href", dataStr);
-    dlAnchorElem.setAttribute("download", `database-absen-jamaah-${new Date().toISOString().split('T')[0]}.json`);
+    dlAnchorElem.setAttribute("download", `database-absen-jamaah-${getLocalYMD()}.json`);
     dlAnchorElem.click();
     showToast("Ekspor database JSON berhasil", "success");
 }
@@ -1134,7 +1143,7 @@ function exportDataCSV() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `laporan-jamaah-${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("download", `laporan-jamaah-${getLocalYMD()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1294,7 +1303,7 @@ function handleGenerateMock() {
     for (let d = 0; d < 30; d++) {
         const date = new Date();
         date.setDate(today.getDate() + d);
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = getLocalYMD(date);
         
         memberProfiles.forEach(prof => {
             const isWeekend = date.getDay() === 0 || date.getDay() === 6;
@@ -1430,7 +1439,7 @@ function updateChartsData() {
     }
     
     validDates.forEach(d => {
-        const dStr = d.toISOString().split('T')[0];
+        const dStr = getLocalYMD(d);
         const label = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
         dates.push(label);
         
