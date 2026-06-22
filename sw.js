@@ -1,4 +1,4 @@
-const CACHE_NAME = 'absen-assalam-v23';
+const CACHE_NAME = 'absen-assalam-v24';
 const ASSETS = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
+  self.skipWaiting(); // Force the waiting service worker to become the active service worker
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
@@ -30,6 +31,6 @@ self.addEventListener('activate', (e) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim()) // Claim clients immediately
   );
 });

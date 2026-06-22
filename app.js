@@ -279,9 +279,6 @@ function initializeUI() {
     // Event listeners for change filters in attendance
     dateInput.addEventListener("change", renderAttendanceTab);
     document.getElementById("attendance-search").addEventListener("input", filterAttendanceCards);
-    
-    // Check all button
-    document.getElementById("btn-mark-all").addEventListener("click", markAllPresent);
 
     // Member tab add member trigger
     document.getElementById("btn-add-member").addEventListener("click", () => {
@@ -659,47 +656,6 @@ window.setAttendanceStatus = function(memberId, status) {
     renderAttendanceTab();
     filterAttendanceCards(); // Preserve search query!
 };
-
-function markAllPresent() {
-    const dateVal = document.getElementById("attendance-date").value;
-    
-    // Iterate active visible cards
-    const cards = document.querySelectorAll(".attendance-card");
-    let addedCount = 0;
-    
-    cards.forEach(card => {
-        if (card.style.display !== "none" && !card.classList.contains("status-hadir")) {
-            const memberId = card.getAttribute("data-member-id");
-            
-            const logIndex = state.attendance.findIndex(log => log.date === dateVal && log.memberId === memberId);
-            if (logIndex > -1) {
-                state.attendance[logIndex].status = "Hadir";
-                state.attendance[logIndex].present = true;
-                if (window.db) window.db.updateAttendanceStatus(state.attendance[logIndex].id, "Hadir", true);
-            } else {
-                const newLog = {
-                    id: 'log_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                    date: dateVal,
-                    memberId: memberId,
-                    status: "Hadir",
-                    present: true
-                };
-                state.attendance.push(newLog);
-                if (window.db) window.db.insertAttendance(newLog);
-            }
-            addedCount++;
-        }
-    });
-    
-    if (addedCount > 0) {
-        saveToLocalStorage();
-        renderAttendanceTab();
-        filterAttendanceCards();
-        showToast(`Berhasil menandai ${addedCount} jamaah Hadir`, "success");
-    } else {
-        showToast("Semua jamaah yang ditampilkan sudah Hadir", "info");
-    }
-}
 
 // Calculate active consecutive days of attendance (Streak)
 function calculateMemberStreak(memberId) {
