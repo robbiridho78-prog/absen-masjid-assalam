@@ -619,8 +619,7 @@ window.filterAttendanceCards = function(searchValue) {
         try {
             const name = (card.getAttribute("data-member-name") || "").toLowerCase();
             if (q === "") {
-                card.style.setProperty("display", "flex", "important");
-                matchCount++;
+                card.style.setProperty("display", "none", "important");
             } else if (name.indexOf(q) !== -1) {
                 card.style.setProperty("display", "flex", "important");
                 matchCount++;
