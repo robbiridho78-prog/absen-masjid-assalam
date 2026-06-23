@@ -607,7 +607,7 @@ function filterAttendanceCards() {
         const name = (card.getAttribute("data-member-name") || "").toLowerCase();
         
         if (q === "") {
-            card.style.display = "none"; // Hide all when search is empty
+            card.style.display = "flex"; // Reset back to showing all when empty
         } else if (name.indexOf(q) !== -1) {
             // Use indexOf to be absolutely safe across all browsers
             card.style.display = "flex";
