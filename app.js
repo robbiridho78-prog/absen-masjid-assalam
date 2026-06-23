@@ -278,7 +278,9 @@ function initializeUI() {
     
     // Event listeners for change filters in attendance
     dateInput.addEventListener("change", renderAttendanceTab);
-    document.getElementById("attendance-search").addEventListener("input", filterAttendanceCards);
+    document.getElementById("attendance-search").addEventListener("input", function(e) {
+        window.filterAttendanceCards(e.target.value);
+    });
 
     // Member tab add member trigger
     document.getElementById("btn-add-member").addEventListener("click", () => {
@@ -563,7 +565,7 @@ function renderAttendanceTab() {
     
     const presentCount = logs.filter(log => log.status === "Hadir" || log.present).length;
     // Apply search filter immediately on render
-    filterAttendanceCards();
+    window.filterAttendanceCards();
     lucide.createIcons();
 }
 
