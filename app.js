@@ -594,34 +594,43 @@ function updateAttendanceStatsBar() {
     document.getElementById("attendance-progress").style.width = `${pct}%`;
 }
 
-function filterAttendanceCards() {
-    const searchInput = document.getElementById("attendance-search");
-    if (!searchInput) return;
-    
-    // Use trim to avoid trailing spaces breaking the search
-    const q = (searchInput.value || "").toLowerCase().trim();
-    const cards = document.querySelectorAll(".attendance-card");
-    
-    cards.forEach(card => {
-        // Fallback to empty string if attribute is missing
-        const name = (card.getAttribute("data-member-name") || "").toLowerCase();
-        
-        if (q === "") {
-            card.style.display = "flex"; // Reset back to showing all when empty
-        } else if (name.indexOf(q) !== -1) {
-            // Use indexOf to be absolutely safe across all browsers
-            card.style.display = "flex";
-        } else {
-            card.style.display = "none";
+// Attach directly to window to guarantee HTML oninput can find it
+window.filterAttendanceCards = function(searchValue) {
+    let q = "";
+    if (typeof searchValue === 'string') {
+        q = searchValue.toLowerCase().trim();
+    } else {
+        const searchInput = document.getElementById("attendance-search");
+        if (searchInput) {
+            q = (searchInput.value || "").toLowerCase().trim();
         }
-    });
+    }
+    
+    const cards = document.querySelectorAll(".attendance-card");
+    if (!cards || cards.length === 0) return;
+    
+    for (let i = 0; i < cards.length; i++) {
+        const card = cards[i];
+        try {
+            const name = (card.getAttribute("data-member-name") || "").toLowerCase();
+            if (q === "") {
+                card.style.display = "flex";
+            } else if (name.indexOf(q) !== -1) {
+                card.style.display = "flex";
+            } else {
+                card.style.display = "none";
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
     
     try {
         updateAttendanceStatsBar();
     } catch (e) {
         console.error("Error updating stats bar:", e);
     }
-}
+};
 
 // New status setter (Hadir / Sakit / Ijin)
 window.setAttendanceStatus = function(memberId, status) {
