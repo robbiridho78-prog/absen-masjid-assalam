@@ -595,23 +595,32 @@ function updateAttendanceStatsBar() {
 }
 
 function filterAttendanceCards() {
-    const q = document.getElementById("attendance-search").value.toLowerCase();
+    const searchInput = document.getElementById("attendance-search");
+    if (!searchInput) return;
+    
+    // Use trim to avoid trailing spaces breaking the search
+    const q = (searchInput.value || "").toLowerCase().trim();
     const cards = document.querySelectorAll(".attendance-card");
     
     cards.forEach(card => {
-        const name = card.getAttribute("data-member-name");
+        // Fallback to empty string if attribute is missing
+        const name = (card.getAttribute("data-member-name") || "").toLowerCase();
         
         if (q === "") {
-            card.style.display = "none"; // Hide all when search is empty (user request)
-        } else if (name.includes(q)) {
+            card.style.display = "none"; // Hide all when search is empty
+        } else if (name.indexOf(q) !== -1) {
+            // Use indexOf to be absolutely safe across all browsers
             card.style.display = "flex";
         } else {
             card.style.display = "none";
         }
     });
     
-    const dateVal = document.getElementById("attendance-date").value;
-    updateAttendanceStatsBar();
+    try {
+        updateAttendanceStatsBar();
+    } catch (e) {
+        console.error("Error updating stats bar:", e);
+    }
 }
 
 // New status setter (Hadir / Sakit / Ijin)
