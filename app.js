@@ -22,6 +22,15 @@ const PIN_PENGABSEN = "123";
 
 // Charts references
 let trendChart = null;
+let isDemoMode = false;
+
+// Helper for getting local YYYY-MM-DD
+function getLocalYMD(dateObj = new Date()) {
+    const yyyy = dateObj.getFullYear();
+    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const dd = String(dateObj.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+}
 
 // Initialize application on DOM load
 document.addEventListener("DOMContentLoaded", async () => {
@@ -262,14 +271,6 @@ function initializeUI() {
 
     // Date fields in Attendance tab
     const dateInput = document.getElementById("attendance-date");
-    
-    // Helper for getting local YYYY-MM-DD
-    function getLocalYMD(dateObj = new Date()) {
-        const yyyy = dateObj.getFullYear();
-        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const dd = String(dateObj.getDate()).padStart(2, '0');
-        return `${yyyy}-${mm}-${dd}`;
-    }
 
     // Set default attendance filter to today's date
     const todayStr = getLocalYMD();
