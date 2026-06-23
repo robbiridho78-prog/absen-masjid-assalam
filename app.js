@@ -631,11 +631,7 @@ window.filterAttendanceCards = function(searchValue) {
         }
     }
     
-    // Show debug toast ONLY if they typed something, so they know it's working
-    if (q.length > 0 && typeof window.showToast === 'function') {
-        window.showToast("Mencari: " + q + " | Ketemu: " + matchCount, "info");
-    }
-    
+
     try {
         updateAttendanceStatsBar();
     } catch (e) {
