@@ -1,9 +1,9 @@
-const CACHE_NAME = 'absen-assalam-v29';
+const CACHE_NAME = 'absen-assalam-v31';
 const ASSETS = [
   './',
   './index.html',
   './style.css?v=16',
-  './app.js?v=29',
+  './app.js?v=31',
   './supabase-client.js',
   './logo.jpg'
 ];

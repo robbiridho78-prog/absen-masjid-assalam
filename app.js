@@ -611,20 +611,29 @@ window.filterAttendanceCards = function(searchValue) {
     const cards = document.querySelectorAll(".attendance-card");
     if (!cards || cards.length === 0) return;
     
+    let matchCount = 0;
+    
     for (let i = 0; i < cards.length; i++) {
         const card = cards[i];
         try {
             const name = (card.getAttribute("data-member-name") || "").toLowerCase();
             if (q === "") {
-                card.style.display = "flex";
+                card.style.setProperty("display", "flex", "important");
+                matchCount++;
             } else if (name.indexOf(q) !== -1) {
-                card.style.display = "flex";
+                card.style.setProperty("display", "flex", "important");
+                matchCount++;
             } else {
-                card.style.display = "none";
+                card.style.setProperty("display", "none", "important");
             }
         } catch (e) {
             console.error(e);
         }
+    }
+    
+    // Show debug toast ONLY if they typed something, so they know it's working
+    if (q.length > 0 && typeof window.showToast === 'function') {
+        window.showToast("Mencari: " + q + " | Ketemu: " + matchCount, "info");
     }
     
     try {

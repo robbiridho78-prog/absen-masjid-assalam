@@ -223,7 +223,7 @@
                     </div>
                     <div class="search-box-wrapper">
                         <i data-lucide="search"></i>
-                        <input type="text" id="attendance-search" placeholder="Cari nama jamaah..." class="form-input search-input" onkeyup="window.filterAttendanceCards(this.value)">
+                        <input type="text" id="attendance-search" placeholder="Cari nama jamaah..." class="form-input search-input" oninput="window.filterAttendanceCards(this.value)">
                     </div>
                 </div>
 
@@ -521,7 +521,7 @@
     <!-- Supabase SDK & Client -->
     <script src="supabase-client.js"></script>
 
-    <script src="app.js?v=30" defer></script>
+    <script src="app.js?v=31" defer></script>
 
     <!-- PWA Service Worker Registration -->
     <script>
