@@ -266,6 +266,24 @@ function initializeUI() {
         settings: "Pengaturan profil masjid dan manajemen database"
     };
 
+    
+    // Schedule Listeners
+    document.getElementById("btn-add-schedule")?.addEventListener("click", () => {
+        document.getElementById("form-schedule").reset();
+        document.getElementById("schedule-id").value = "";
+        document.getElementById("schedule-modal").classList.add("active");
+    });
+    document.getElementById("btn-close-schedule-modal")?.addEventListener("click", () => {
+        document.getElementById("schedule-modal").classList.remove("active");
+    });
+    document.getElementById("btn-cancel-schedule")?.addEventListener("click", () => {
+        document.getElementById("schedule-modal").classList.remove("active");
+    });
+    document.getElementById("form-schedule")?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        saveSchedule();
+    });
+
     navItems.forEach(item => {
         item.addEventListener("click", () => {
             const targetTab = item.getAttribute("data-tab");
@@ -567,6 +585,18 @@ function renderAttendanceTab() {
         else if (m.category === "Remaja") ageClass = "remaja";
         else if (m.category === "Lansia") ageClass = "lansia";
         
+
+        let waSakit = '';
+        if (currentStatus === 'Sakit') {
+            const waText = encodeURIComponent("Assalamualaikum, kami dari pengurus Kelompok Assalam mendoakan semoga lekas sembuh, selalu dalam lindungan Allah.");
+            waSakit = `<a href="https://wa.me/?text=${waText}" target="_blank" class="btn-status" style="background:#25D366;color:white;min-width:40px;padding:8px" title="Doakan Sakit via WA"><i data-lucide="message-circle"></i></a>`;
+        }
+        let waIzin = '';
+        if (currentStatus === 'Ijin') {
+            const waTextIzin = encodeURIComponent("Assalamualaikum, kami dari pengurus Kelompok Assalam sudah mencatat izin Bapak/Ibu untuk pengajian hari ini.");
+            waIzin = `<a href="https://wa.me/?text=${waTextIzin}" target="_blank" class="btn-status" style="background:#25D366;color:white;min-width:40px;padding:8px" title="Balas Izin via WA"><i data-lucide="message-circle"></i></a>`;
+        }
+
         const streak = calculateMemberStreak(m.id);
         
         card.innerHTML = `
@@ -584,6 +614,8 @@ function renderAttendanceTab() {
                 <i data-lucide="map-pin"></i> <span>${m.address || '-'}</span>
             </div>
             <div class="attendance-actions-group">
+                ${waSakit}
+                ${waIzin}
                 <button class="btn-status btn-status-hadir ${currentStatus === 'Hadir' ? 'active' : ''}" onclick="setAttendanceStatus('${m.id}', 'Hadir')" title="Tandai Hadir">
                     <i data-lucide="check-circle-2"></i> Hadir
                 </button>
