@@ -592,7 +592,7 @@ function renderAttendanceTab() {
             let phoneStr = m.phone ? m.phone.replace(/[^0-9]/g, '') : '';
             if (phoneStr.startsWith('0')) phoneStr = '62' + phoneStr.slice(1);
             const waUrlSakit = phoneStr ? `https://wa.me/${phoneStr}?text=${waText}` : `https://wa.me/?text=${waText}`;
-            waSakit = `<a href="${waUrlSakit}"`; target="_blank" class="btn-status" style="background:#25D366;color:white;min-width:40px;padding:8px" title="Doakan Sakit via WA"><i data-lucide="message-circle"></i></a>`;
+            waSakit = `<a href="${waUrlSakit}" target="_blank" class="btn-status" style="background:#25D366;color:white;min-width:40px;padding:8px" title="Doakan Sakit via WA"><i data-lucide="message-circle"></i></a>`;
         }
         let waIzin = '';
         if (currentStatus === 'Ijin') {
@@ -600,7 +600,7 @@ function renderAttendanceTab() {
             let phoneStrIzin = m.phone ? m.phone.replace(/[^0-9]/g, '') : '';
             if (phoneStrIzin.startsWith('0')) phoneStrIzin = '62' + phoneStrIzin.slice(1);
             const waUrlIzin = phoneStrIzin ? `https://wa.me/${phoneStrIzin}?text=${waTextIzin}` : `https://wa.me/?text=${waTextIzin}`;
-            waIzin = `<a href="${waUrlIzin}"`; target="_blank" class="btn-status" style="background:#25D366;color:white;min-width:40px;padding:8px" title="Balas Izin via WA"><i data-lucide="message-circle"></i></a>`;
+            waIzin = `<a href="${waUrlIzin}" target="_blank" class="btn-status" style="background:#25D366;color:white;min-width:40px;padding:8px" title="Balas Izin via WA"><i data-lucide="message-circle"></i></a>`;
         }
 
         const streak = calculateMemberStreak(m.id);
@@ -1595,7 +1595,6 @@ function saveSchedule() {
     const materi2 = document.getElementById("schedule-materi-2").value;
     const guru2 = document.getElementById("schedule-guru-2").value;
     const materi3 = document.getElementById("schedule-materi-3").value;
-    const guru3 = document.getElementById("schedule-guru-3").value;
     const guru3 = document.getElementById("schedule-guru-3").value;
     
     if (id) {
