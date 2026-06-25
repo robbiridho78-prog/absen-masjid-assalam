@@ -169,7 +169,7 @@ function applyRolePermissions() {
         
         // Add CSS rule to hide action columns in tables
         let style = document.createElement('style');
-        style.innerHTML = '.action-buttons-group { display: none !important; }';
+        style.innerHTML = '.action-buttons-group { display: none !important; } .admin-only { display: none !important; }';
         document.head.appendChild(style);
 
         // Force active tab to attendance
