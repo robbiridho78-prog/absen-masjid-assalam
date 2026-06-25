@@ -81,6 +81,11 @@
                     <i data-lucide="trophy"></i>
                     <span>Peringkat Jamaah</span>
                 </button>
+
+                <button class="nav-item" data-tab="schedule" id="nav-schedule">
+                    <i data-lucide="calendar"></i>
+                    <span>Jadwal Pengajian</span>
+                </button>
                 <button class="nav-item" data-tab="settings" id="nav-settings">
                     <i data-lucide="settings"></i>
                     <span>Pengaturan</span>
@@ -313,6 +318,13 @@
 
             <!-- TAB 4: Leaderboard / Istiqamah List -->
             <section id="tab-leaderboard" class="tab-panel">
+                
+                <div class="flex-row justify-between align-center mb-4">
+                    <h3 style="margin: 0;">Peringkat Jamaah Paling Istiqamah</h3>
+                    <button id="btn-export-csv" class="btn btn-primary btn-sm admin-only">
+                        <i data-lucide="download"></i> Download CSV
+                    </button>
+                </div>
                 <!-- Podiums for Top 3 Streaks -->
                 <div class="podium-container">
                     <div class="podium-spot second">
@@ -382,6 +394,21 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </section>
+
+
+            <!-- TAB: Jadwal Pengajian -->
+            <section id="tab-schedule" class="tab-panel">
+                <div class="flex-row justify-between align-center mb-4">
+                    <h2 class="section-title" style="margin: 0;">Jadwal Pengajian</h2>
+                    <button id="btn-add-schedule" class="btn btn-primary admin-only">
+                        <i data-lucide="plus"></i> Tambah Jadwal
+                    </button>
+                </div>
+                
+                <div id="schedule-list" class="schedule-grid">
+                    <!-- Schedule cards will be rendered here -->
                 </div>
             </section>
 
@@ -565,7 +592,7 @@
     <!-- Supabase SDK & Client -->
     <script src="supabase-client.js"></script>
 
-    <script src="app.js?v=41" defer></script>
+    <script src="app.js?v=42" defer></script>
 
     <!-- PWA Service Worker Registration -->
     <script>
