@@ -199,9 +199,11 @@ async function loadDataFromDatabase() {
         try {
             const dbJamaah = await window.db.fetchJamaah();
             const dbAttendance = await window.db.fetchAttendance();
+            const dbSchedules = window.db.fetchSchedules ? await window.db.fetchSchedules() : [];
             
             state.jamaah = dbJamaah || [];
             state.attendance = dbAttendance || [];
+            state.schedules = dbSchedules || [];
             
             // Mosque config still from local for now, or default
             const saved = localStorage.getItem("absen_jamaah_state");
@@ -1598,19 +1600,30 @@ function saveSchedule() {
     const materi3 = document.getElementById("schedule-materi-3").value;
     const guru3 = document.getElementById("schedule-guru-3").value;
     
+    let targetSch = null;
+    
     if (id) {
         // Edit
         const index = state.schedules.findIndex(s => s.id === id);
         if (index > -1) {
-            state.schedules[index] = { id, date, time, materi1, guru1, materi2, guru2, materi3, guru3 };
+            targetSch = { id, date, time, materi1, guru1, materi2, guru2, materi3, guru3 };
+            state.schedules[index] = targetSch;
         }
     } else {
         // Create
         const newId = 'sch-' + Date.now();
-        state.schedules.push({ id: newId, date, time, materi1, guru1, materi2, guru2, materi3, guru3 });
+        targetSch = { id: newId, date, time, materi1, guru1, materi2, guru2, materi3, guru3 };
+        state.schedules.push(targetSch);
     }
     
+    // Fallback to local storage
     localStorage.setItem('assalam_schedules', JSON.stringify(state.schedules));
+    
+    // Save to Supabase
+    if (window.db && window.db.upsertSchedule && targetSch) {
+        window.db.upsertSchedule(targetSch);
+    }
+    
     document.getElementById("schedule-modal").classList.remove("active");
     renderScheduleTab();
     showToast("Jadwal berhasil disimpan!", "success");
@@ -1619,7 +1632,15 @@ function saveSchedule() {
 function deleteSchedule(id) {
     if (confirm("Yakin ingin menghapus jadwal ini?")) {
         state.schedules = state.schedules.filter(s => s.id !== id);
+        
+        // Local storage update
         localStorage.setItem('assalam_schedules', JSON.stringify(state.schedules));
+        
+        // Supabase update
+        if (window.db && window.db.deleteSchedule) {
+            window.db.deleteSchedule(id);
+        }
+        
         renderScheduleTab();
         showToast("Jadwal dihapus", "warning");
     }

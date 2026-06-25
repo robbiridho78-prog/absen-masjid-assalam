@@ -126,5 +126,49 @@ window.db = {
         } catch (error) {
             console.error("Fetch error deleting all attendance:", error);
         }
+    },
+
+    // ================= Schedules =================
+
+    async fetchSchedules() {
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/schedules?select=*`, { headers });
+            if (!res.ok) {
+                console.error("Error fetching schedules:", await res.text());
+                return null;
+            }
+            return await res.json();
+        } catch (error) {
+            console.error("Fetch error schedules:", error);
+            return null;
+        }
+    },
+
+    async upsertSchedule(schedule) {
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/schedules`, {
+                method: 'POST',
+                headers: {
+                    ...headers,
+                    'Prefer': 'resolution=merge-duplicates' // Upsert
+                },
+                body: JSON.stringify(schedule)
+            });
+            if (!res.ok) console.error("Error upserting schedule:", await res.text());
+        } catch (error) {
+            console.error("Fetch error upserting schedule:", error);
+        }
+    },
+
+    async deleteSchedule(id) {
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/schedules?id=eq.${id}`, {
+                method: 'DELETE',
+                headers
+            });
+            if (!res.ok) console.error("Error deleting schedule:", await res.text());
+        } catch (error) {
+            console.error("Fetch error deleting schedule:", error);
+        }
     }
 };
