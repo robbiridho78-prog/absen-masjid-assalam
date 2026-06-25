@@ -1596,6 +1596,7 @@ function saveSchedule() {
     const guru2 = document.getElementById("schedule-guru-2").value;
     const materi3 = document.getElementById("schedule-materi-3").value;
     const guru3 = document.getElementById("schedule-guru-3").value;
+    const guru3 = document.getElementById("schedule-guru-3").value;
     
     if (id) {
         // Edit
