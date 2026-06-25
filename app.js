@@ -1525,7 +1525,7 @@ function renderScheduleTab() {
     const container = document.getElementById("schedule-list");
     if (!container) return;
     
-    container.innerHTML = "";
+    container.innerHTML = "<div style='background:yellow;padding:10px;text-align:center;font-weight:bold;margin-bottom:10px;color:black;'>INI VERSI 52 - JADWAL BERHASIL DIMUAT!</div>";
     
     // Sort schedules by date descending
     const sortedSchedules = [...state.schedules].sort((a, b) => new Date(b.date) - new Date(a.date));
