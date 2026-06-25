@@ -1,23 +1,32 @@
-const CACHE_NAME = 'absen-assalam-v34';
+const CACHE_NAME = 'absen-assalam-v35';
 const ASSETS = [
   './',
-  './index.html',
   './style.css?v=16',
-  './app.js?v=34',
-  './supabase-client.js',
   './logo.jpg'
 ];
 
 self.addEventListener('install', (e) => {
-  self.skipWaiting(); // Force the waiting service worker to become the active service worker
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
 });
 
+// NETWORK FIRST STRATEGY
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((response) => response || fetch(e.request))
+    fetch(e.request)
+      .then((networkResponse) => {
+        // If network request succeeds, put it in cache and return it
+        return caches.open(CACHE_NAME).then((cache) => {
+          cache.put(e.request, networkResponse.clone());
+          return networkResponse;
+        });
+      })
+      .catch(() => {
+        // If network fails (offline), return from cache
+        return caches.match(e.request);
+      })
   );
 });
 
@@ -31,6 +40,6 @@ self.addEventListener('activate', (e) => {
           }
         })
       );
-    }).then(() => self.clients.claim()) // Claim clients immediately
+    }).then(() => self.clients.claim())
   );
 });
