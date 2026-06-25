@@ -315,6 +315,8 @@ function initializeUI() {
                 renderLeaderboardTab();
             } else if (targetTab === "settings") {
                 loadSettingsTab();
+            } else if (targetTab === "schedule") {
+                renderScheduleTab();
             }
         });
     });
@@ -1525,7 +1527,7 @@ function renderScheduleTab() {
     const container = document.getElementById("schedule-list");
     if (!container) return;
     
-    container.innerHTML = "<div style='background:yellow;padding:10px;text-align:center;font-weight:bold;margin-bottom:10px;color:black;'>INI VERSI 52 - JADWAL BERHASIL DIMUAT!</div>";
+    container.innerHTML = "";
     
     // Sort schedules by date descending
     const sortedSchedules = [...state.schedules].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -1556,7 +1558,6 @@ function renderScheduleTab() {
                 <h3 style="margin: 0; color: var(--primary-dark);">${formatDateIndo(sch.date)}</h3>
                 <span class="badge" style="background: var(--accent-color); color: white;">${sch.time} WIB</span>
             </div>
-            
             
             <div style="background: var(--bg-color); padding: 12px; border-radius: 8px;">
                 <p style="margin-top: 0; margin-bottom: 8px; font-weight: 500; font-size: 0.9rem;">Agenda Kajian:</p>
