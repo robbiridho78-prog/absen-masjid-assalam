@@ -81,6 +81,11 @@
                     <i data-lucide="trophy"></i>
                     <span>Peringkat Jamaah</span>
                 </button>
+
+                <button class="nav-item" data-tab="schedule" id="nav-schedule">
+                    <i data-lucide="calendar"></i>
+                    <span>Jadwal Pengajian</span>
+                </button>
                 <button class="nav-item" data-tab="settings" id="nav-settings">
                     <i data-lucide="settings"></i>
                     <span>Pengaturan</span>
@@ -313,6 +318,13 @@
 
             <!-- TAB 4: Leaderboard / Istiqamah List -->
             <section id="tab-leaderboard" class="tab-panel">
+                
+                <div class="flex-row justify-between align-center mb-4">
+                    <h3 style="margin: 0;">Peringkat Jamaah Paling Istiqamah</h3>
+                    <button id="btn-export-csv" class="btn btn-primary btn-sm admin-only">
+                        <i data-lucide="download"></i> Download CSV
+                    </button>
+                </div>
                 <!-- Podiums for Top 3 Streaks -->
                 <div class="podium-container">
                     <div class="podium-spot second">
@@ -382,6 +394,21 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </section>
+
+
+            <!-- TAB: Jadwal Pengajian -->
+            <section id="tab-schedule" class="tab-panel">
+                <div class="flex-row justify-between align-center mb-4">
+                    <h2 class="section-title" style="margin: 0;">Jadwal Pengajian</h2>
+                    <button id="btn-add-schedule" class="btn btn-primary admin-only">
+                        <i data-lucide="plus"></i> Tambah Jadwal
+                    </button>
+                </div>
+                
+                <div id="schedule-list" class="schedule-grid">
+                    <!-- Schedule cards will be rendered here -->
                 </div>
             </section>
 
@@ -517,6 +544,46 @@
 
     <!-- Notification Toast Container -->
     <div id="toast-container" class="toast-container"></div>
+
+
+    <!-- Schedule Modal -->
+    <div id="schedule-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="schedule-modal-title">Tambah Jadwal Baru</h3>
+                <button class="btn-icon" id="btn-close-schedule-modal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="form-schedule">
+                    <input type="hidden" id="schedule-id">
+                    <div class="form-group-vertical">
+                        <label for="schedule-date">Tanggal</label>
+                        <input type="date" id="schedule-date" class="form-input" required>
+                    </div>
+                    <div class="form-group-vertical">
+                        <label for="schedule-time">Waktu / Jam</label>
+                        <input type="time" id="schedule-time" class="form-input" required>
+                    </div>
+                    <div class="form-group-vertical">
+                        <label for="schedule-teacher">Nama Guru / Ustadz</label>
+                        <input type="text" id="schedule-teacher" class="form-input" placeholder="Contoh: Ustadz Fulan" required>
+                    </div>
+                    <div class="form-group-vertical">
+                        <label>Materi Kajian (Maks 3)</label>
+                        <input type="text" id="schedule-materi-1" class="form-input mb-2" placeholder="1. Materi Pertama" required>
+                        <input type="text" id="schedule-materi-2" class="form-input mb-2" placeholder="2. Materi Kedua (Opsional)">
+                        <input type="text" id="schedule-materi-3" class="form-input" placeholder="3. Materi Ketiga (Opsional)">
+                    </div>
+                    <div class="modal-actions mt-4">
+                        <button type="button" class="btn btn-outline" id="btn-cancel-schedule">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Jadwal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Supabase SDK & Client -->
     <script src="supabase-client.js"></script>

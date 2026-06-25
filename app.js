@@ -12,7 +12,8 @@ let state = {
         address: "Jl. Assalam No. 45, Jakarta Selatan"
     },
     jamaah: [],
-    attendance: [] // Array of { id, date, prayer, memberId, present: true }
+    attendance: [], // Array of { id, date, prayer, memberId, present: true }
+    schedules: JSON.parse(localStorage.getItem('assalam_schedules')) || []
 };
 
 // Auth variables
@@ -23,6 +24,42 @@ const PIN_PENGABSEN = "123";
 // Charts references
 let trendChart = null;
 let isDemoMode = false;
+
+
+// ==========================================================================
+// EXPORT CSV
+// ==========================================================================
+function exportToCSV() {
+    if (state.jamaah.length === 0) {
+        showToast("Tidak ada data untuk di-export", "warning");
+        return;
+    }
+
+    const { streaks, breakdown } = calculateMemberStreak();
+    
+    // Create CSV header
+    let csvContent = "Nama Jamaah,Hadir,Izin,Sakit,Alpa,Hari Istiqamah\n";
+    
+    // Add rows
+    state.jamaah.forEach(m => {
+        const bd = breakdown[m.id] || { hadir: 0, izin: 0, sakit: 0, alpa: 0 };
+        const st = streaks[m.id] || 0;
+        csvContent += `"${m.name}",${bd.hadir},${bd.izin},${bd.sakit},${bd.alpa},${st}\n`;
+    });
+
+    // Create Blob and trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `laporan_absen_assalam_${getLocalYMD()}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showToast("Laporan berhasil di-download!", "success");
+}
 
 // Helper for getting local YYYY-MM-DD
 function getLocalYMD(dateObj = new Date()) {
@@ -1440,4 +1477,112 @@ function updateChartsData() {
     trendChart.data.datasets[1].data = totalsIzin;
     trendChart.data.datasets[2].data = totalsSakit;
     trendChart.update();
+}
+
+
+// ==========================================================================
+// SCHEDULE (JADWAL PENGAJIAN)
+// ==========================================================================
+function renderScheduleTab() {
+    const container = document.getElementById("schedule-list");
+    if (!container) return;
+    
+    container.innerHTML = "";
+    
+    // Sort schedules by date descending
+    const sortedSchedules = [...state.schedules].sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    if (sortedSchedules.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i data-lucide="calendar" class="empty-icon"></i>
+                <p>Belum ada jadwal pengajian.</p>
+            </div>
+        `;
+        lucide.createIcons();
+        return;
+    }
+    
+    sortedSchedules.forEach(sch => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.style.position = "relative";
+        
+        let materiHtml = '';
+        if (sch.materi1) materiHtml += `<li>${sch.materi1}</li>`;
+        if (sch.materi2) materiHtml += `<li>${sch.materi2}</li>`;
+        if (sch.materi3) materiHtml += `<li>${sch.materi3}</li>`;
+        
+        card.innerHTML = `
+            <div class="flex-row justify-between align-center mb-2">
+                <h3 style="margin: 0; color: var(--primary-dark);">${formatDateIndo(sch.date)}</h3>
+                <span class="badge" style="background: var(--accent-color); color: white;">${sch.time} WIB</span>
+            </div>
+            <div class="flex-row align-center mb-4 text-muted">
+                <i data-lucide="user" style="width: 16px; height: 16px; margin-right: 8px;"></i>
+                <strong>${sch.teacher}</strong>
+            </div>
+            
+            <div style="background: var(--bg-color); padding: 12px; border-radius: 8px;">
+                <p style="margin-top: 0; margin-bottom: 8px; font-weight: 500; font-size: 0.9rem;">Materi Kajian:</p>
+                <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                    ${materiHtml}
+                </ul>
+            </div>
+            
+            ${currentUserRole === 'admin' ? `
+            <div style="position: absolute; bottom: 16px; right: 16px; display: flex; gap: 8px;">
+                <button class="btn-icon" onclick="deleteSchedule('${sch.id}')" title="Hapus Jadwal">
+                    <i data-lucide="trash-2" style="color: var(--danger-color);"></i>
+                </button>
+            </div>
+            ` : ''}
+        `;
+        
+        container.appendChild(card);
+    });
+    
+    lucide.createIcons();
+}
+
+function formatDateIndo(dateStr) {
+    const d = new Date(dateStr);
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    return d.toLocaleDateString('id-ID', options);
+}
+
+function saveSchedule() {
+    const id = document.getElementById("schedule-id").value;
+    const date = document.getElementById("schedule-date").value;
+    const time = document.getElementById("schedule-time").value;
+    const teacher = document.getElementById("schedule-teacher").value;
+    const materi1 = document.getElementById("schedule-materi-1").value;
+    const materi2 = document.getElementById("schedule-materi-2").value;
+    const materi3 = document.getElementById("schedule-materi-3").value;
+    
+    if (id) {
+        // Edit
+        const index = state.schedules.findIndex(s => s.id === id);
+        if (index > -1) {
+            state.schedules[index] = { id, date, time, teacher, materi1, materi2, materi3 };
+        }
+    } else {
+        // Create
+        const newId = 'sch-' + Date.now();
+        state.schedules.push({ id: newId, date, time, teacher, materi1, materi2, materi3 });
+    }
+    
+    localStorage.setItem('assalam_schedules', JSON.stringify(state.schedules));
+    document.getElementById("schedule-modal").classList.remove("active");
+    renderScheduleTab();
+    showToast("Jadwal berhasil disimpan!", "success");
+}
+
+function deleteSchedule(id) {
+    if (confirm("Yakin ingin menghapus jadwal ini?")) {
+        state.schedules = state.schedules.filter(s => s.id !== id);
+        localStorage.setItem('assalam_schedules', JSON.stringify(state.schedules));
+        renderScheduleTab();
+        showToast("Jadwal dihapus", "warning");
+    }
 }
