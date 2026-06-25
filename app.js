@@ -589,12 +589,18 @@ function renderAttendanceTab() {
         let waSakit = '';
         if (currentStatus === 'Sakit') {
             const waText = encodeURIComponent("Assalamualaikum, kami dari pengurus Kelompok Assalam mendoakan semoga lekas sembuh, selalu dalam lindungan Allah.");
-            waSakit = `<a href="https://wa.me/?text=${waText}" target="_blank" class="btn-status" style="background:#25D366;color:white;min-width:40px;padding:8px" title="Doakan Sakit via WA"><i data-lucide="message-circle"></i></a>`;
+            let phoneStr = m.phone ? m.phone.replace(/[^0-9]/g, '') : '';
+            if (phoneStr.startsWith('0')) phoneStr = '62' + phoneStr.slice(1);
+            const waUrlSakit = phoneStr ? `https://wa.me/${phoneStr}?text=${waText}` : `https://wa.me/?text=${waText}`;
+            waSakit = `<a href="${waUrlSakit}"`; target="_blank" class="btn-status" style="background:#25D366;color:white;min-width:40px;padding:8px" title="Doakan Sakit via WA"><i data-lucide="message-circle"></i></a>`;
         }
         let waIzin = '';
         if (currentStatus === 'Ijin') {
             const waTextIzin = encodeURIComponent("Assalamualaikum, kami dari pengurus Kelompok Assalam sudah mencatat izin Bapak/Ibu untuk pengajian hari ini.");
-            waIzin = `<a href="https://wa.me/?text=${waTextIzin}" target="_blank" class="btn-status" style="background:#25D366;color:white;min-width:40px;padding:8px" title="Balas Izin via WA"><i data-lucide="message-circle"></i></a>`;
+            let phoneStrIzin = m.phone ? m.phone.replace(/[^0-9]/g, '') : '';
+            if (phoneStrIzin.startsWith('0')) phoneStrIzin = '62' + phoneStrIzin.slice(1);
+            const waUrlIzin = phoneStrIzin ? `https://wa.me/${phoneStrIzin}?text=${waTextIzin}` : `https://wa.me/?text=${waTextIzin}`;
+            waIzin = `<a href="${waUrlIzin}"`; target="_blank" class="btn-status" style="background:#25D366;color:white;min-width:40px;padding:8px" title="Balas Izin via WA"><i data-lucide="message-circle"></i></a>`;
         }
 
         const streak = calculateMemberStreak(m.id);
@@ -1541,22 +1547,19 @@ function renderScheduleTab() {
         card.style.position = "relative";
         
         let materiHtml = '';
-        if (sch.materi1) materiHtml += `<li>${sch.materi1}</li>`;
-        if (sch.materi2) materiHtml += `<li>${sch.materi2}</li>`;
-        if (sch.materi3) materiHtml += `<li>${sch.materi3}</li>`;
+        if (sch.materi1) materiHtml += `<li style="margin-bottom:6px;"><strong>${sch.materi1}</strong><br><span style="color:var(--text-muted); font-size:0.8rem;"><i data-lucide="user" style="width:12px; height:12px; vertical-align:middle; margin-right:4px;"></i>${sch.guru1 || 'Pengurus'}</span></li>`;
+        if (sch.materi2) materiHtml += `<li style="margin-bottom:6px;"><strong>${sch.materi2}</strong><br><span style="color:var(--text-muted); font-size:0.8rem;"><i data-lucide="user" style="width:12px; height:12px; vertical-align:middle; margin-right:4px;"></i>${sch.guru2 || 'Pengurus'}</span></li>`;
+        if (sch.materi3) materiHtml += `<li style="margin-bottom:6px;"><strong>${sch.materi3}</strong><br><span style="color:var(--text-muted); font-size:0.8rem;"><i data-lucide="user" style="width:12px; height:12px; vertical-align:middle; margin-right:4px;"></i>${sch.guru3 || 'Pengurus'}</span></li>`;
         
         card.innerHTML = `
             <div class="flex-row justify-between align-center mb-2">
                 <h3 style="margin: 0; color: var(--primary-dark);">${formatDateIndo(sch.date)}</h3>
                 <span class="badge" style="background: var(--accent-color); color: white;">${sch.time} WIB</span>
             </div>
-            <div class="flex-row align-center mb-4 text-muted">
-                <i data-lucide="user" style="width: 16px; height: 16px; margin-right: 8px;"></i>
-                <strong>${sch.teacher}</strong>
-            </div>
+            
             
             <div style="background: var(--bg-color); padding: 12px; border-radius: 8px;">
-                <p style="margin-top: 0; margin-bottom: 8px; font-weight: 500; font-size: 0.9rem;">Materi Kajian:</p>
+                <p style="margin-top: 0; margin-bottom: 8px; font-weight: 500; font-size: 0.9rem;">Agenda Kajian:</p>
                 <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
                     ${materiHtml}
                 </ul>
@@ -1587,21 +1590,23 @@ function saveSchedule() {
     const id = document.getElementById("schedule-id").value;
     const date = document.getElementById("schedule-date").value;
     const time = document.getElementById("schedule-time").value;
-    const teacher = document.getElementById("schedule-teacher").value;
     const materi1 = document.getElementById("schedule-materi-1").value;
+    const guru1 = document.getElementById("schedule-guru-1").value;
     const materi2 = document.getElementById("schedule-materi-2").value;
+    const guru2 = document.getElementById("schedule-guru-2").value;
     const materi3 = document.getElementById("schedule-materi-3").value;
+    const guru3 = document.getElementById("schedule-guru-3").value;
     
     if (id) {
         // Edit
         const index = state.schedules.findIndex(s => s.id === id);
         if (index > -1) {
-            state.schedules[index] = { id, date, time, teacher, materi1, materi2, materi3 };
+            state.schedules[index] = { id, date, time, materi1, guru1, materi2, guru2, materi3, guru3 };
         }
     } else {
         // Create
         const newId = 'sch-' + Date.now();
-        state.schedules.push({ id: newId, date, time, teacher, materi1, materi2, materi3 });
+        state.schedules.push({ id: newId, date, time, materi1, guru1, materi2, guru2, materi3, guru3 });
     }
     
     localStorage.setItem('assalam_schedules', JSON.stringify(state.schedules));
