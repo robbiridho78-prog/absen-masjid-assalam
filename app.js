@@ -755,6 +755,8 @@ window.setAttendanceStatus = function(memberId, status) {
     const member = state.jamaah.find(m => m.id === memberId);
     const memberName = member ? member.name : "Jamaah";
     
+    let shouldSendWA = false;
+
     if (logIndex > -1) {
         const currentStatus = state.attendance[logIndex].status || (state.attendance[logIndex].present ? "Hadir" : "");
         const logId = state.attendance[logIndex].id;
@@ -764,12 +766,14 @@ window.setAttendanceStatus = function(memberId, status) {
             state.attendance.splice(logIndex, 1);
             if (window.db) window.db.deleteAttendance(logId);
             showToast(`${memberName}: Kehadiran dibatalkan`, "info");
+            // KITA TIDAK MENGIRIM WA JIKA HANYA MEMBATALKAN/MENGKLIK ULANG STATUS YANG SAMA
         } else {
             // Update status
             state.attendance[logIndex].status = status;
             state.attendance[logIndex].present = (status === "Hadir"); // backward compatibility
             if (window.db) window.db.updateAttendanceStatus(logId, status, status === "Hadir");
             showToast(`${memberName}: Ditandai ${status}`, status === "Hadir" ? "success" : (status === "Sakit" ? "info" : "warning"));
+            shouldSendWA = true;
         }
     } else {
         // Create new log entry
@@ -783,19 +787,20 @@ window.setAttendanceStatus = function(memberId, status) {
         state.attendance.push(newLog);
         if (window.db) window.db.insertAttendance(newLog);
         showToast(`${memberName}: Ditandai ${status}`, status === "Hadir" ? "success" : (status === "Sakit" ? "info" : "warning"));
+        shouldSendWA = true;
     }
     
     saveToLocalStorage();
     renderAttendanceTab();
     filterAttendanceCards(); // Preserve search query!
 
-    // TRIGGER WABLAS API
-    const m = state.jamaah.find(j => j.id === memberId);
-    if (m && m.phone) {
-        if (typeof window.sendWhatsAppOtomatis === 'function') {
-            window.sendWhatsAppOtomatis(m.phone, status);
-        } else {
-            alert('Fungsi WA otomatis belum dimuat!');
+    // TRIGGER WABLAS API HANYA JIKA ADA PERUBAHAN STATUS BARU
+    if (shouldSendWA) {
+        const m = state.jamaah.find(j => j.id === memberId);
+        if (m && m.phone) {
+            if (typeof window.sendWhatsAppOtomatis === 'function') {
+                window.sendWhatsAppOtomatis(m.phone, status);
+            }
         }
     }
 };
