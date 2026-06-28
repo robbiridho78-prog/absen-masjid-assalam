@@ -6,6 +6,35 @@
 // ==========================================================================
 // 1. STATE & CORE CONFIGURATION
 // ==========================================================================
+
+// ==========================================================================
+// WABLAS API INTEGRATION (AUTO SEND WA)
+// ==========================================================================
+window.sendWhatsAppOtomatis = function(phone, status) {
+    if (!phone) return;
+    let phoneStr = phone.replace(/[^0-9]/g, '');
+    if (phoneStr.startsWith('0')) phoneStr = '62' + phoneStr.slice(1);
+    
+    let waText = '';
+    if (status === 'Sakit') waText = 'Assalamualaikum, kami dari pengurus Kelompok Assalam mendoakan semoga allah Paring cepat lekas sembuh, dan segala penyakit yang di derita nya oleh allah di angkat dan selalu dalam lindungan Allah.';
+    else if (status === 'Ijin') waText = 'Assalamualaikum, kami dari pengurus Kelompok Assalam sudah mencatat izin Bapak/Ibu untuk pengajian hari ini. Semoga Allah Paring, Aman, Lancar dan Barokah.';
+    else if (status === 'Alpa') waText = 'Assalamualaikum, kami perhatikan Bapak/Ibu belum bisa hadir di pengajian hari ini, semoga sehat selalu.';
+    else return;
+
+    const token = 'mtkmOJjip5W7mNgGvaEAVGqiQAYm2V9PU3UH6OEoqHGMygqqgpsYHEY.UeCGfH8R';
+    const url = `https://smg.wablas.com/api/send-message?phone=${phoneStr}&message=${encodeURIComponent(waText)}&token=${token}`;
+
+    showToast('Sedang memproses WA otomatis...', 'info');
+    
+    // IMAGE HACK TO BYPASS CORS
+    const img = new Image();
+    img.src = url;
+    
+    setTimeout(() => {
+        showToast('Pesan WA otomatis telah diteruskan ke server Wablas!', 'success');
+    }, 1500);
+};
+
 let state = {
     mosque: {
         name: "Kelompok Assalam",
@@ -590,21 +619,22 @@ function renderAttendanceTab() {
         else if (m.category === "Lansia") ageClass = "lansia";
         
 
-        let waSakit = '';
-        if (currentStatus === 'Sakit') {
-            const waText = encodeURIComponent("Assalamualaikum, kami dari pengurus Kelompok Assalam mendoakan semoga lekas sembuh, selalu dalam lindungan Allah.");
-            let phoneStr = m.phone ? m.phone.replace(/[^0-9]/g, '') : '';
+        let waButtonHtml = '';
+        let phoneStr = m.phone ? m.phone.replace(/[^0-9]/g, '') : '';
+        if (phoneStr) {
             if (phoneStr.startsWith('0')) phoneStr = '62' + phoneStr.slice(1);
-            const waUrlSakit = phoneStr ? `https://wa.me/${phoneStr}?text=${waText}` : `https://wa.me/?text=${waText}`;
-            waSakit = `<a href="${waUrlSakit}" target="_blank" class="btn-status" style="background:#25D366;color:white;min-width:40px;padding:8px" title="Doakan Sakit via WA"><i data-lucide="message-circle"></i></a>`;
-        }
-        let waIzin = '';
-        if (currentStatus === 'Ijin') {
-            const waTextIzin = encodeURIComponent("Assalamualaikum, kami dari pengurus Kelompok Assalam sudah mencatat izin Bapak/Ibu untuk pengajian hari ini.");
-            let phoneStrIzin = m.phone ? m.phone.replace(/[^0-9]/g, '') : '';
-            if (phoneStrIzin.startsWith('0')) phoneStrIzin = '62' + phoneStrIzin.slice(1);
-            const waUrlIzin = phoneStrIzin ? `https://wa.me/${phoneStrIzin}?text=${waTextIzin}` : `https://wa.me/?text=${waTextIzin}`;
-            waIzin = `<a href="${waUrlIzin}" target="_blank" class="btn-status" style="background:#25D366;color:white;min-width:40px;padding:8px" title="Balas Izin via WA"><i data-lucide="message-circle"></i></a>`;
+            let waText = '';
+            if (currentStatus === 'Sakit') {
+                waText = encodeURIComponent("Assalamualaikum, kami dari pengurus Kelompok Assalam mendoakan semoga allah Paring cepat lekas sembuh, dan segala penyakit yang di derita nya oleh allah di angkat dan selalu dalam lindungan Allah.");
+            } else if (currentStatus === 'Ijin') {
+                waText = encodeURIComponent("Assalamualaikum, kami dari pengurus Kelompok Assalam sudah mencatat izin Bapak/Ibu untuk pengajian hari ini. Semoga Allah Paring, Aman, Lancar dan Barokah.");
+            } else if (currentStatus === 'Alpa') {
+                waText = encodeURIComponent("Assalamualaikum, kami perhatikan Bapak/Ibu belum bisa hadir di pengajian hari ini, semoga sehat selalu.");
+            } else {
+                waText = encodeURIComponent("Assalamualaikum, salam silaturahmi dari pengurus Kelompok Assalam.");
+            }
+            const waUrl = `https://wa.me/${phoneStr}?text=${waText}`;
+            waButtonHtml = `<a href="${waUrl}" target="_blank" class="btn-status" style="background:#25D366;color:white;min-width:40px;padding:8px" title="Chat via WA"><i data-lucide="message-circle"></i></a>`;
         }
 
         const streak = calculateMemberStreak(m.id);
@@ -624,8 +654,7 @@ function renderAttendanceTab() {
                 <i data-lucide="map-pin"></i> <span>${m.address || '-'}</span>
             </div>
             <div class="attendance-actions-group">
-                ${waSakit}
-                ${waIzin}
+                ${waButtonHtml}
                 <button class="btn-status btn-status-hadir ${currentStatus === 'Hadir' ? 'active' : ''}" onclick="setAttendanceStatus('${m.id}', 'Hadir')" title="Tandai Hadir">
                     <i data-lucide="check-circle-2"></i> Hadir
                 </button>
@@ -759,6 +788,16 @@ window.setAttendanceStatus = function(memberId, status) {
     saveToLocalStorage();
     renderAttendanceTab();
     filterAttendanceCards(); // Preserve search query!
+
+    // TRIGGER WABLAS API
+    const m = state.jamaah.find(j => j.id === memberId);
+    if (m && m.phone) {
+        if (typeof window.sendWhatsAppOtomatis === 'function') {
+            window.sendWhatsAppOtomatis(m.phone, status);
+        } else {
+            alert('Fungsi WA otomatis belum dimuat!');
+        }
+    }
 };
 
 // Calculate active consecutive days of attendance (Streak)
