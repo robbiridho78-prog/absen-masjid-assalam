@@ -1684,3 +1684,132 @@ function deleteSchedule(id) {
         showToast("Jadwal dihapus", "warning");
     }
 }
+
+// ==========================================================================
+// WEEKLY RECAP GENERATOR
+// ==========================================================================
+window.openRecapModal = function() {
+    let modal = document.getElementById('recap-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'recap-modal';
+        modal.className = 'login-overlay active';
+        modal.innerHTML = `
+        <div class="login-card" style="max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div class="login-header">
+                <h2 style="font-family: 'Times New Roman', Times, serif;">Rekap Mingguan</h2>
+                <p>Pilih tanggal pengajian (Senin & Kamis)</p>
+            </div>
+            <div class="form-group-vertical">
+                <label>Tanggal Pengajian 1 (Senin)</label>
+                <input type="date" id="recap-date-1" class="form-input">
+            </div>
+            <div class="form-group-vertical">
+                <label>Tanggal Pengajian 2 (Kamis)</label>
+                <input type="date" id="recap-date-2" class="form-input">
+            </div>
+            <div class="form-group-vertical" style="margin-top: 15px;">
+                <label>Hasil Rekap (Bisa diedit manual)</label>
+                <textarea id="recap-result-text" class="form-input" style="height: 200px; font-size: 14px; white-space: pre-wrap;"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn btn-primary" onclick="generateRecapText()" style="flex: 1;"><i data-lucide="refresh-cw"></i> Buat Rekap</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('recap-modal').remove()" style="flex: 1;"><i data-lucide="x"></i> Tutup</button>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn btn-primary" onclick="copyRecapText()" style="flex: 1; background: #64748b; border: none;"><i data-lucide="copy"></i> Copy Teks</button>
+                <button class="btn btn-primary" onclick="sendRecapWA()" style="flex: 1; background: #25D366; border: none;"><i data-lucide="send"></i> Kirim via WA</button>
+            </div>
+        </div>
+        `;
+        document.body.appendChild(modal);
+        if(window.lucide) window.lucide.createIcons();
+        
+        const today = new Date();
+        let lastMonday = new Date(today);
+        lastMonday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+        
+        let thursday = new Date(lastMonday);
+        thursday.setDate(lastMonday.getDate() + 3);
+        
+        document.getElementById('recap-date-1').value = lastMonday.toISOString().split('T')[0];
+        document.getElementById('recap-date-2').value = thursday.toISOString().split('T')[0];
+    }
+};
+
+window.generateRecapText = function() {
+    const date1 = document.getElementById('recap-date-1').value;
+    const date2 = document.getElementById('recap-date-2').value;
+    
+    if (!date1 && !date2) {
+        showToast('Pilih minimal 1 tanggal', 'warning');
+        return;
+    }
+    
+    const dates = [date1, date2].filter(d => d);
+    
+    let result = '*Rekap Kehadiran Pengajian Kelompok Assalam*\n';
+    result += 'Periode: ' + dates.map(d => formatDateId(d)).join(' & ') + '\n\n';
+    
+    let totalHadir = 0, totalIzin = 0, totalSakit = 0, totalAlpa = 0;
+    const listIzin = new Set();
+    const listSakit = new Set();
+    const listAlpa = new Set();
+    
+    dates.forEach(date => {
+        const logs = state.attendance.filter(log => log.date === date);
+        state.jamaah.forEach(m => {
+            const log = logs.find(l => l.memberId === m.id);
+            const stat = log ? (log.status || (log.present ? 'Hadir' : 'Alpa')) : 'Alpa';
+            
+            if (stat === 'Hadir') totalHadir++;
+            else if (stat === 'Izin') { totalIzin++; listIzin.add(m.name); }
+            else if (stat === 'Sakit') { totalSakit++; listSakit.add(m.name); }
+            else { totalAlpa++; listAlpa.add(m.name); }
+        });
+    });
+    
+    const totalSessions = dates.length * state.jamaah.length;
+    const avgHadir = totalSessions > 0 ? Math.round((totalHadir / totalSessions) * 100) : 0;
+    
+    result += `*Total Jamaah: ${state.jamaah.length} orang*\n`;
+    result += `*Total Sesi Diabsen: ${dates.length} sesi*\n\n`;
+    
+    result += `*Rata-rata Kehadiran: ${avgHadir}%*\n\n`;
+    
+    result += `*Sakit (${listSakit.size}):*\n`;
+    if (listSakit.size > 0) result += '- ' + Array.from(listSakit).join('\n- ') + '\n';
+    else result += '- Nihil\n';
+    
+    result += `\n*Izin (${listIzin.size}):*\n`;
+    if (listIzin.size > 0) result += '- ' + Array.from(listIzin).join('\n- ') + '\n';
+    else result += '- Nihil\n';
+    
+    result += `\n*Tanpa Keterangan/Alpa (${listAlpa.size}):*\n`;
+    if (listAlpa.size > 0) result += '- ' + Array.from(listAlpa).join('\n- ') + '\n';
+    else result += '- Nihil\n';
+    
+    result += '\n_Semoga Allah senantiasa memberikan kesehatan, kelancaran, dan kebarokahan bagi kita semua. Amin._';
+    
+    document.getElementById('recap-result-text').value = result;
+};
+
+window.copyRecapText = function() {
+    const text = document.getElementById('recap-result-text').value;
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => showToast('Teks berhasil di-copy!', 'success'));
+};
+
+window.sendRecapWA = function() {
+    const text = document.getElementById('recap-result-text').value;
+    if (!text) return;
+    const url = 'https://api.whatsapp.com/send/?text=' + encodeURIComponent(text);
+    window.open(url, '_blank');
+};
+
+function formatDateId(dateStr) {
+    const d = new Date(dateStr);
+    const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
