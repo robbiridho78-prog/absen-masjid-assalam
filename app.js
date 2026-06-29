@@ -1708,6 +1708,7 @@ window.openRecapModal = function() {
             <div class="form-group-vertical">
                 <label>Tanggal Pengajian</label>
                 <input type="date" id="recap-date-1" class="form-input">
+                <div id="recap-quick-buttons" style="display: flex; gap: 8px; margin-top: 10px;"></div>
             </div>
             <div class="form-group-vertical" style="margin-top: 15px;">
                 <label>Hasil Rekap (Bisa diedit manual)</label>
@@ -1729,6 +1730,24 @@ window.openRecapModal = function() {
         // Default to the date selected in the main dashboard
         const dashDate = document.getElementById("attendance-date") ? document.getElementById("attendance-date").value : new Date().toISOString().split('T')[0];
         document.getElementById('recap-date-1').value = dashDate;
+        
+        // Setup Quick Buttons
+        const todayD = new Date();
+        const d1 = new Date(todayD);
+        d1.setDate(todayD.getDate() - ((todayD.getDay() + 6) % 7)); // Last Monday
+        
+        const d2 = new Date(d1);
+        d2.setDate(d1.getDate() + 3); // Last Thursday
+        
+        const formatD = (d) => d.toISOString().split('T')[0];
+        const formatLabel = (d) => d.toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'short'});
+        
+        document.getElementById('recap-quick-buttons').innerHTML = `
+            <button class="btn btn-secondary" style="flex:1; padding: 8px 4px; font-size: 12px; background: #e2e8f0; border: none; color: #334155; border-radius: 6px; font-weight: 500;" onclick="document.getElementById('recap-date-1').value = '${formatD(d1)}'; window.generateRecapText();">${formatLabel(d1)}</button>
+            <button class="btn btn-secondary" style="flex:1; padding: 8px 4px; font-size: 12px; background: #e2e8f0; border: none; color: #334155; border-radius: 6px; font-weight: 500;" onclick="document.getElementById('recap-date-1').value = '${formatD(d2)}'; window.generateRecapText();">${formatLabel(d2)}</button>
+        `;
+        
+        setTimeout(() => window.generateRecapText(), 200);
     }
 };
 
@@ -1744,6 +1763,7 @@ window.generateRecapText = function() {
     result += 'Tanggal: ' + formatDateId(date1) + '\n\n';
     
     let totalHadir = 0, totalIzin = 0, totalSakit = 0, totalAlpa = 0;
+    const listHadir = new Set();
     const listIzin = new Set();
     const listSakit = new Set();
     const listAlpa = new Set();
@@ -1754,7 +1774,7 @@ window.generateRecapText = function() {
         const log = logs.find(l => l.memberId === m.id);
         const stat = log ? (log.status || (log.present ? 'Hadir' : 'Alpa')) : 'Alpa';
         
-        if (stat === 'Hadir') totalHadir++;
+        if (stat === 'Hadir') { totalHadir++; listHadir.add(m.name); }
         else if (stat === 'Izin' || stat === 'Ijin') { totalIzin++; listIzin.add(m.name); }
         else if (stat === 'Sakit') { totalSakit++; listSakit.add(m.name); }
         else { totalAlpa++; listAlpa.add(m.name); }
@@ -1765,6 +1785,10 @@ window.generateRecapText = function() {
     
     result += `*Total Jamaah: ${state.jamaah.length} orang*\n`;
     result += `*Tingkat Kehadiran: ${avgHadir}%*\n\n`;
+    
+    result += `*Hadir (${listHadir.size}):*\n`;
+    if (listHadir.size > 0) result += '- ' + Array.from(listHadir).join('\n- ') + '\n';
+    else result += '- Nihil\n\n';
     
     result += `*Sakit (${listSakit.size}):*\n`;
     if (listSakit.size > 0) result += '- ' + Array.from(listSakit).join('\n- ') + '\n';
