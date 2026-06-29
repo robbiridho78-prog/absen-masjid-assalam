@@ -17,7 +17,7 @@ window.sendWhatsAppOtomatis = function(phone, status) {
     
     let waText = '';
     if (status === 'Sakit') waText = 'Assalamualaikum, kami dari pengurus Kelompok Assalam mendoakan semoga allah Paring cepat lekas sembuh, dan segala penyakit yang di derita nya oleh allah di angkat dan selalu dalam lindungan Allah.';
-    else if (status === 'Ijin') waText = 'Assalamualaikum, kami dari pengurus Kelompok Assalam sudah mencatat izin Bapak/Ibu untuk pengajian hari ini. Semoga Allah Paring, Aman, Lancar dan Barokah.';
+    else if (status === 'Ijin' || status === 'Izin') waText = 'Assalamualaikum, kami dari pengurus Kelompok Assalam sudah mencatat izin Bapak/Ibu untuk pengajian hari ini. Semoga Allah Paring, Aman, Lancar dan Barokah.';
     else if (status === 'Alpa') waText = 'Assalamualaikum, kami perhatikan Bapak/Ibu belum bisa hadir di pengajian hari ini, semoga sehat selalu.';
     else return;
 
