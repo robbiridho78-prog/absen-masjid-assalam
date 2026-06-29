@@ -354,7 +354,9 @@ function initializeUI() {
 
     // Handle view all button on Dashboard click
     document.querySelector(".btn-view-all-absensi").addEventListener("click", () => {
-        document.querySelector('[data-tab="attendance"]').click();
+        if(window.openRecapModal) {
+            window.openRecapModal();
+        }
     });
 
     // Date fields in Attendance tab
