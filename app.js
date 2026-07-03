@@ -1887,9 +1887,9 @@ window.toggleDarkMode = function() {
     const isDark = document.body.classList.contains('dark-mode');
     localStorage.setItem('assalam_dark_mode', isDark);
     
-    const btn = document.getElementById('btn-dark-mode');
+    const btn = document.getElementById('btn-dark-mode-sidebar');
     if (btn) {
-        btn.innerHTML = isDark ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
+        btn.innerHTML = isDark ? '<i data-lucide="sun"></i><span id="dark-mode-text">Mode Terang</span>' : '<i data-lucide="moon"></i><span id="dark-mode-text">Mode Gelap</span>';
         if (window.lucide) window.lucide.createIcons();
     }
 };
@@ -1899,9 +1899,9 @@ if (localStorage.getItem('assalam_dark_mode') === 'true') {
     document.body.classList.add('dark-mode');
     // Ensure icon updates after DOM loads
     setTimeout(() => {
-        const btn = document.getElementById('btn-dark-mode');
+        const btn = document.getElementById('btn-dark-mode-sidebar');
         if (btn) {
-            btn.innerHTML = '<i data-lucide="sun"></i>';
+            btn.innerHTML = '<i data-lucide="sun"></i><span id="dark-mode-text">Mode Terang</span>';
             if (window.lucide) window.lucide.createIcons();
         }
     }, 100);

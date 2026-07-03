@@ -95,6 +95,11 @@
                     <i data-lucide="clipboard-list"></i>
                     <span>Rekap WA</span>
                 </button>
+                
+                <button class="nav-item" id="btn-dark-mode-sidebar" onclick="window.toggleDarkMode()">
+                    <i data-lucide="moon"></i>
+                    <span id="dark-mode-text">Mode Gelap</span>
+                </button>
                 <div class="sidebar-divider"></div>
                 <button class="nav-item text-danger" id="btn-logout" style="color: #ef4444;">
                     <i data-lucide="log-out"></i>
@@ -119,9 +124,6 @@
                     <p id="page-subtitle" class="text-muted">Ringkasan aktivitas dan kehadiran jamaah hari ini</p>
                 </div>
                 
-                <button class="btn btn-icon" id="btn-dark-mode" title="Mode Gelap" onclick="window.toggleDarkMode()">
-                    <i data-lucide="moon"></i>
-                </button>
                 <button class="btn btn-icon btn-mobile-logout" id="btn-mobile-logout" title="Keluar">
                     <i data-lucide="log-out"></i>
                 </button>
@@ -621,7 +623,7 @@
     <!-- Supabase SDK & Client -->
     <script src="supabase-client.js"></script>
 
-    <script src="app.js?bypass=1783090174136" defer></script>
+    <script src="app.js?bypass=1783092102544" defer></script>
 
     <!-- PWA Service Worker Registration -->
     <script>
