@@ -118,6 +118,10 @@
                     <h2 id="page-title">Dashboard</h2>
                     <p id="page-subtitle" class="text-muted">Ringkasan aktivitas dan kehadiran jamaah hari ini</p>
                 </div>
+                
+                <button class="btn btn-icon" id="btn-dark-mode" title="Mode Gelap" onclick="window.toggleDarkMode()">
+                    <i data-lucide="moon"></i>
+                </button>
                 <button class="btn btn-icon btn-mobile-logout" id="btn-mobile-logout" title="Keluar">
                     <i data-lucide="log-out"></i>
                 </button>
@@ -191,6 +195,24 @@
 
                 
 
+                
+                
+                <!-- Broadcast Controls -->
+                <div class="dashboard-grid full-width" style="margin-bottom: 20px;">
+                    <div class="content-card" style="padding: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background: linear-gradient(to right, rgba(37, 99, 235, 0.1), rgba(16, 185, 129, 0.1)); border: 1px solid rgba(37, 99, 235, 0.2);">
+                        <div style="flex: 1; min-width: 200px;">
+                            <h3 style="margin-bottom: 5px; color: #2563eb;"><i data-lucide="radio"></i> Fitur Siaran (Broadcast)</h3>
+                            <p style="font-size: 13px; color: #64748b; margin: 0;">Kirim pesan undangan atau rapot kehadiran massal ke jamaah.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="window.openBroadcastModal()" style="min-width: 150px; background: #2563eb; color: white;">
+                            <i data-lucide="send"></i> Kirim Pesan Massal
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Missing Jamaah Alert -->
+                <div id="missing-jamaah-container"></div>
+                
                 <!-- Charts & Activity Row -->
                 <div class="dashboard-grid full-width">
                     <!-- Analytics Chart Card -->
@@ -599,7 +621,7 @@
     <!-- Supabase SDK & Client -->
     <script src="supabase-client.js"></script>
 
-    <script src="app.js?bypass=1782746527895" defer></script>
+    <script src="app.js?bypass=1783090174136" defer></script>
 
     <!-- PWA Service Worker Registration -->
     <script>

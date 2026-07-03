@@ -1696,3 +1696,170 @@ body {
         width: 90%;
     }
 }
+
+
+/* ==========================================================================
+   DARK MODE STYLES
+   ========================================================================== */
+body.dark-mode {
+    background-color: #0f172a;
+    color: #e2e8f0;
+}
+
+body.dark-mode .app-container {
+    background: #1e293b;
+    box-shadow: none;
+}
+
+body.dark-mode .sidebar {
+    background: #0f172a;
+    border-right: 1px solid #334155;
+}
+
+body.dark-mode .sidebar-header {
+    border-bottom: 1px solid #334155;
+}
+
+body.dark-mode .sidebar-header h2 {
+    color: #f8fafc;
+}
+
+body.dark-mode .nav-item {
+    color: #94a3b8;
+}
+
+body.dark-mode .nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #f8fafc;
+}
+
+body.dark-mode .nav-item.active {
+    background: linear-gradient(90deg, rgba(37, 99, 235, 0.2), transparent);
+    color: #3b82f6;
+    border-left: 4px solid #3b82f6;
+}
+
+body.dark-mode .main-content {
+    background-color: #0f172a;
+}
+
+body.dark-mode .content-header {
+    background: rgba(15, 23, 42, 0.8);
+    border-bottom: 1px solid #334155;
+}
+
+body.dark-mode .content-header h2 {
+    color: #f8fafc;
+}
+
+body.dark-mode .content-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .stat-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .stat-label {
+    color: #94a3b8;
+}
+
+body.dark-mode .stat-value {
+    color: #f8fafc;
+}
+
+body.dark-mode .card-header {
+    border-bottom: 1px solid #334155;
+}
+
+body.dark-mode .card-header h3 {
+    color: #e2e8f0;
+}
+
+body.dark-mode .attendance-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+}
+
+body.dark-mode .attendance-card:hover {
+    border-color: #475569;
+    background: #273549;
+}
+
+body.dark-mode .member-info h4 {
+    color: #f8fafc;
+}
+
+body.dark-mode .member-info p {
+    color: #94a3b8;
+}
+
+body.dark-mode .form-input, body.dark-mode .form-select, body.dark-mode .search-input {
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #e2e8f0;
+}
+
+body.dark-mode .form-input:focus, body.dark-mode .form-select:focus, body.dark-mode .search-input:focus {
+    border-color: #3b82f6;
+    background: #1e293b;
+}
+
+body.dark-mode .login-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+}
+
+body.dark-mode .login-header h2 {
+    color: #f8fafc;
+}
+
+body.dark-mode .login-header p {
+    color: #94a3b8;
+}
+
+body.dark-mode .table-container {
+    background: #1e293b;
+}
+
+body.dark-mode table th {
+    background: #0f172a;
+    color: #94a3b8;
+    border-bottom: 1px solid #334155;
+}
+
+body.dark-mode table td {
+    border-bottom: 1px solid #334155;
+    color: #e2e8f0;
+}
+
+body.dark-mode tbody tr:hover {
+    background: #273549;
+}
+
+body.dark-mode .activity-item {
+    border-bottom: 1px solid #334155;
+}
+
+body.dark-mode .btn-secondary {
+    background: #334155;
+    color: #e2e8f0;
+}
+
+body.dark-mode .btn-secondary:hover {
+    background: #475569;
+}
+
+body.dark-mode .attendance-stats-bar {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #e2e8f0;
+}
+
+body.dark-mode .progressbar-container {
+    background: #334155;
+}

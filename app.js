@@ -112,6 +112,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     // Refresh icons
     lucide.createIcons();
+    renderMissingJamaahAlert();
 });
 
 // ==========================================================================
@@ -808,6 +809,55 @@ window.setAttendanceStatus = function(memberId, status) {
 };
 
 // Calculate active consecutive days of attendance (Streak)
+
+function calculateConsecutiveAlpa(memberId) {
+    const allDates = [...new Set(state.attendance.map(log => log.date))].sort((a, b) => b.localeCompare(a));
+    let alpaCount = 0;
+    for (const d of allDates) {
+        const log = state.attendance.find(l => l.date === d && l.memberId === memberId);
+        const status = log ? (log.status || (log.present ? 'Hadir' : 'Alpa')) : 'Alpa';
+        if (status === 'Alpa') {
+            alpaCount++;
+        } else {
+            break;
+        }
+    }
+    return alpaCount;
+}
+
+window.sendRinduWA = function(memberId, memberName) {
+    const m = state.jamaah.find(x => x.id === memberId);
+    if (!m || !m.phone) {
+        showToast('Nomor HP tidak ditemukan', 'warning');
+        return;
+    }
+    let phoneStr = m.phone.replace(/[^0-9]/g, '');
+    if (phoneStr.startsWith('0')) phoneStr = '62' + phoneStr.slice(1);
+    
+    const waText = 'Assalamualaikum Bapak/Ibu ' + memberName + '. Kami perhatikan Bapak/Ibu sudah 3x pengajian tidak hadir. Apakah sedang ada udzur/kendala? Kami merindukan kehadirannya di Kelompok Assalam. Semoga sehat selalu.';
+    
+    const token = 'mtkmOJjip5W7mNgGvaEAVGqiQAYm2V9PU3UH6OEoqHGMygqqgpsYHEY.UeCGfH8R';
+    const url = `https://smg.wablas.com/api/send-message?phone=${phoneStr}&message=${encodeURIComponent(waText)}&token=${token}`;
+
+    showToast('Mengirim WA Rindu ke ' + memberName + '...', 'info');
+    const img = new Image();
+    img.src = url;
+    
+    setTimeout(() => {
+        showToast('Pesan Rindu terkirim!', 'success');
+        
+        // Remove the button from UI if possible
+        const btn = document.getElementById('btn-rindu-' + memberId);
+        if (btn) {
+            btn.innerHTML = '<i data-lucide="check"></i> Terkirim';
+            btn.disabled = true;
+            btn.style.background = '#10b981';
+            btn.style.color = '#fff';
+            if (window.lucide) window.lucide.createIcons();
+        }
+    }, 1500);
+};
+
 function calculateMemberStreak(memberId) {
     // Fetch unique dates this member was present (Hadir)
     const memberLogs = state.attendance.filter(log => log.memberId === memberId && (log.status === "Hadir" || log.present));
@@ -1828,3 +1878,248 @@ function formatDateId(dateStr) {
     const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
     return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
+
+// ==========================================================================
+// DARK MODE
+// ==========================================================================
+window.toggleDarkMode = function() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('assalam_dark_mode', isDark);
+    
+    const btn = document.getElementById('btn-dark-mode');
+    if (btn) {
+        btn.innerHTML = isDark ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
+        if (window.lucide) window.lucide.createIcons();
+    }
+};
+
+// Apply dark mode on load
+if (localStorage.getItem('assalam_dark_mode') === 'true') {
+    document.body.classList.add('dark-mode');
+    // Ensure icon updates after DOM loads
+    setTimeout(() => {
+        const btn = document.getElementById('btn-dark-mode');
+        if (btn) {
+            btn.innerHTML = '<i data-lucide="sun"></i>';
+            if (window.lucide) window.lucide.createIcons();
+        }
+    }, 100);
+}
+
+
+function renderMissingJamaahAlert() {
+    const container = document.getElementById('missing-jamaah-container');
+    if (!container) return;
+    
+    // Find missing members
+    const missing = [];
+    state.jamaah.forEach(m => {
+        const alpaCount = calculateConsecutiveAlpa(m.id);
+        if (alpaCount >= 3) {
+            missing.push({ member: m, count: alpaCount });
+        }
+    });
+    
+    if (missing.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    
+    let html = `
+        <div class="content-card" style="border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.05); margin-bottom: 20px;">
+            <div class="card-header" style="border-bottom: 1px solid #ef4444;">
+                <h3 style="color: #ef4444;"><i data-lucide="alert-triangle"></i> Jamaah Perlu Perhatian (Alpa >= 3x)</h3>
+            </div>
+            <div class="card-body">
+                <div class="activity-timeline">
+    `;
+    
+    missing.forEach(item => {
+        const initials = item.member.name.substring(0, 2).toUpperCase();
+        html += `
+            <div class="activity-item">
+                <div class="activity-avatar" style="background: #ef4444; color: white;">${initials}</div>
+                <div class="activity-details">
+                    <div class="activity-name">${item.member.name}</div>
+                    <div class="activity-meta">Alpa berturut-turut: <strong>${item.count}x</strong></div>
+                </div>
+                <div class="flex-row items-center gap-2">
+                    <button id="btn-rindu-${item.member.id}" class="btn btn-primary" style="background: #10b981; border: none; padding: 6px 12px; font-size: 12px;" onclick="window.sendRinduWA('${item.member.id}', '${item.member.name}')">
+                        <i data-lucide="message-circle"></i> Kirim WA Rindu
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+    if (window.lucide) window.lucide.createIcons();
+}
+
+
+// ==========================================================================
+// BROADCAST LOGIC
+// ==========================================================================
+window.openBroadcastModal = function() {
+    let modal = document.getElementById('broadcast-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'broadcast-modal';
+        modal.className = 'login-overlay active';
+        modal.innerHTML = `
+        <div class="login-card" style="max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div class="login-header">
+                <h2 style="font-family: 'Times New Roman', Times, serif; color: #2563eb;">Siaran Massal</h2>
+                <p>Fitur Asisten Pintar Assalam</p>
+            </div>
+            
+            <div id="broadcast-status-container" style="display: none; padding: 15px; margin-bottom: 15px; background: #fffbeb; border: 1px solid #f59e0b; border-radius: 8px;">
+                <h4 style="color: #d97706; margin-bottom: 5px; font-weight: 600;">Status Pengiriman...</h4>
+                <div class="progressbar-container" style="margin-bottom: 10px;">
+                    <div id="broadcast-progress" class="progressbar-fill" style="width: 0%; background: #f59e0b;"></div>
+                </div>
+                <p id="broadcast-status-text" style="font-size: 13px; margin: 0; color: #92400e;">0 dari 0 pesan terkirim.</p>
+                <p style="font-size: 12px; color: #b45309; margin-top: 5px;">⚠️ Mohon JANGAN tutup layar ini sampai selesai.</p>
+            </div>
+
+            <div id="broadcast-form-container">
+                <div class="form-group-vertical">
+                    <label>Pilih Jenis Siaran</label>
+                    <select id="broadcast-type" class="form-select" onchange="window.previewBroadcastMessage()">
+                        <option value="undangan">Pengingat Pengajian H-1</option>
+                        <option value="rapot">Laporan Kehadiran (Bulan Ini)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group-vertical" style="margin-top: 15px;">
+                    <label>Preview Pesan (Contoh ke jamaah pertama)</label>
+                    <textarea id="broadcast-preview" class="form-input" style="height: 150px; font-size: 13px; white-space: pre-wrap;" readonly></textarea>
+                </div>
+                
+                <div style="background: rgba(37, 99, 235, 0.1); padding: 10px; border-radius: 6px; margin-top: 15px; font-size: 13px; color: #1e3a8a;">
+                    Pesan akan dikirim ke <strong>${state.jamaah.filter(m => m.phone).length} jamaah</strong> yang memiliki nomor HP. Pengiriman akan memakan waktu kurang lebih ${Math.ceil(state.jamaah.filter(m => m.phone).length * 1.5 / 60)} menit.
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button id="btn-start-broadcast" class="btn btn-primary" onclick="window.startBroadcast()" style="flex: 2; background: #25D366; border: none;"><i data-lucide="rocket"></i> Mulai Kirim Massal</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('broadcast-modal').remove()" style="flex: 1;"><i data-lucide="x"></i> Batal</button>
+                </div>
+            </div>
+        </div>
+        `;
+        document.body.appendChild(modal);
+        if(window.lucide) window.lucide.createIcons();
+        window.previewBroadcastMessage();
+    }
+};
+
+window.previewBroadcastMessage = function() {
+    const type = document.getElementById('broadcast-type').value;
+    const preview = document.getElementById('broadcast-preview');
+    if (!preview) return;
+    
+    // Pick the first jamaah with phone
+    const sampleMember = state.jamaah.find(m => m.phone) || state.jamaah[0] || { name: 'Fulan' };
+    
+    if (type === 'undangan') {
+        preview.value = `Assalamualaikum Bapak/Ibu ${sampleMember.name},\n\nSekadar mengingatkan bahwa besok ada jadwal pengajian rutin Kelompok Assalam. Mohon keringanan langkahnya untuk hadir tepat waktu.\n\nSemoga Allah Paring Aman, Lancar, dan Barokah.`;
+    } else if (type === 'rapot') {
+        preview.value = `Assalamualaikum Bapak/Ibu ${sampleMember.name},\n\nBerikut adalah Laporan Rekap Kehadiran Pengajian Bapak/Ibu selama 30 Hari Terakhir:\n- Hadir: 6x\n- Izin: 1x\n- Sakit: 0x\n- Alpa: 1x\n\nTingkat Kehadiran: 75%\n\nTerima kasih atas semangatnya dalam mencari ilmu. Semoga sehat selalu dan makin barokah.`;
+    }
+};
+
+window.startBroadcast = function() {
+    const type = document.getElementById('broadcast-type').value;
+    const targets = state.jamaah.filter(m => m.phone);
+    
+    if (targets.length === 0) {
+        showToast('Tidak ada jamaah yang memiliki nomor HP!', 'error');
+        return;
+    }
+    
+    // Hide form, show progress
+    document.getElementById('broadcast-form-container').style.display = 'none';
+    document.getElementById('broadcast-status-container').style.display = 'block';
+    
+    let currentIndex = 0;
+    const total = targets.length;
+    
+    const sendNext = function() {
+        if (currentIndex >= total) {
+            // Done
+            document.getElementById('broadcast-status-text').innerHTML = `✅ Selesai! ${total} pesan berhasil dikirim.`;
+            document.getElementById('broadcast-progress').style.width = '100%';
+            document.getElementById('broadcast-progress').style.background = '#10b981';
+            
+            setTimeout(() => {
+                showToast('Broadcast selesai!', 'success');
+                const modal = document.getElementById('broadcast-modal');
+                if (modal) modal.remove();
+            }, 3000);
+            return;
+        }
+        
+        const member = targets[currentIndex];
+        let phoneStr = member.phone.replace(/[^0-9]/g, '');
+        if (phoneStr.startsWith('0')) phoneStr = '62' + phoneStr.slice(1);
+        
+        let waText = '';
+        if (type === 'undangan') {
+            waText = `Assalamualaikum Bapak/Ibu ${member.name},\n\nSekadar mengingatkan bahwa besok ada jadwal pengajian rutin Kelompok Assalam. Mohon keringanan langkahnya untuk hadir tepat waktu.\n\nSemoga Allah Paring Aman, Lancar, dan Barokah.`;
+        } else if (type === 'rapot') {
+            // Calculate stats for 30 days
+            let h = 0, i = 0, s = 0, a = 0;
+            const now = new Date();
+            const past30 = new Date();
+            past30.setDate(now.getDate() - 30);
+            const dateThreshold = past30.toISOString().split('T')[0];
+            
+            // Get unique dates in last 30 days
+            const recentDates = [...new Set(state.attendance.map(l => l.date))].filter(d => d >= dateThreshold);
+            
+            recentDates.forEach(d => {
+                const log = state.attendance.find(l => l.date === d && l.memberId === member.id);
+                const stat = log ? (log.status || (log.present ? 'Hadir' : 'Alpa')) : 'Alpa';
+                if (stat === 'Hadir') h++;
+                else if (stat === 'Izin' || stat === 'Ijin') i++;
+                else if (stat === 'Sakit') s++;
+                else a++;
+            });
+            
+            const totalSess = recentDates.length;
+            const pct = totalSess > 0 ? Math.round((h/totalSess)*100) : 0;
+            
+            waText = `Assalamualaikum Bapak/Ibu ${member.name},\n\nBerikut adalah Laporan Rekap Kehadiran Pengajian Bapak/Ibu selama 30 Hari Terakhir:\n- Hadir: ${h}x\n- Izin: ${i}x\n- Sakit: ${s}x\n- Alpa: ${a}x\n\nTingkat Kehadiran: ${pct}%\n\nTerima kasih atas semangatnya dalam mencari ilmu. Semoga sehat selalu dan makin barokah.`;
+        }
+        
+        const token = 'mtkmOJjip5W7mNgGvaEAVGqiQAYm2V9PU3UH6OEoqHGMygqqgpsYHEY.UeCGfH8R';
+        const url = `https://smg.wablas.com/api/send-message?phone=${phoneStr}&message=${encodeURIComponent(waText)}&token=${token}`;
+
+        // Send via image hack
+        const img = new Image();
+        img.src = url;
+        
+        currentIndex++;
+        
+        // Update UI
+        const pct = Math.round((currentIndex / total) * 100);
+        const prog = document.getElementById('broadcast-progress');
+        const txt = document.getElementById('broadcast-status-text');
+        
+        if (prog) prog.style.width = pct + '%';
+        if (txt) txt.textContent = `${currentIndex} dari ${total} pesan terkirim. Mengirim ke ${member.name}...`;
+        
+        // Delay 1.5s to avoid rate limiting
+        setTimeout(sendNext, 1500);
+    };
+    
+    // Start loop
+    sendNext();
+};
