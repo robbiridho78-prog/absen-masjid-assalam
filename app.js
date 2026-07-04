@@ -196,6 +196,11 @@ function applyRolePermissions() {
         
         // Hide add/edit/delete buttons
         if (btnAddMember) btnAddMember.style.display = "none";
+
+        // Hide admin-only elements
+        const adminElements = document.querySelectorAll('.admin-only');
+        adminElements.forEach(el => el.style.display = 'none');
+
         
         // Add CSS rule to hide action columns in tables
         let style = document.createElement('style');
@@ -210,6 +215,11 @@ function applyRolePermissions() {
         if (navMembers) navMembers.style.display = "flex";
         if (navSettings) navSettings.style.display = "flex";
         if (btnAddMember) btnAddMember.style.display = "flex";
+
+        // Show admin-only elements
+        const adminElements = document.querySelectorAll('.admin-only');
+        adminElements.forEach(el => el.style.display = '');
+
     }
 }
 
@@ -2122,4 +2132,102 @@ window.startBroadcast = function() {
     
     // Start loop
     sendNext();
+};
+
+
+// ==========================================================================
+// ANNOUNCEMENT LOGIC
+// ==========================================================================
+
+function loadAnnouncement() {
+    const saved = localStorage.getItem('assalam_announcement');
+    const display = document.getElementById('announcement-display');
+    if (display) {
+        if (saved) {
+            display.innerHTML = saved.replace(/\n/g, '<br>');
+        } else {
+            display.innerHTML = 'Belum ada pengumuman saat ini.';
+        }
+    }
+}
+
+window.openEditAnnouncementModal = function() {
+    const modal = document.getElementById('announcement-modal');
+    const input = document.getElementById('input-announcement');
+    if (modal && input) {
+        input.value = localStorage.getItem('assalam_announcement') || '';
+        modal.classList.add('active');
+    }
+};
+
+window.closeAnnouncementModal = function() {
+    const modal = document.getElementById('announcement-modal');
+    if (modal) modal.classList.remove('active');
+};
+
+window.saveAnnouncement = function() {
+    const input = document.getElementById('input-announcement');
+    if (input) {
+        localStorage.setItem('assalam_announcement', input.value);
+        loadAnnouncement();
+        closeAnnouncementModal();
+        showToast('Pengumuman berhasil disimpan!', 'success');
+    }
+};
+
+window.broadcastAnnouncement = function() {
+    const input = document.getElementById('input-announcement');
+    if (!input || !input.value.trim()) {
+        showToast('Teks pengumuman tidak boleh kosong!', 'warning');
+        return;
+    }
+    
+    if(!confirm('Anda yakin ingin mengirimkan pengumuman ini ke seluruh jamaah via WA?')) return;
+    
+    const text = input.value.trim();
+    const targets = state.jamaah.filter(m => m.phone);
+    
+    if (targets.length === 0) {
+        showToast('Tidak ada jamaah yang memiliki nomor HP!', 'error');
+        return;
+    }
+    
+    closeAnnouncementModal();
+    
+    // Use the existing broadcast modal container if possible to show progress, or just toast
+    let currentIndex = 0;
+    const total = targets.length;
+    
+    showToast('Memulai broadcast pengumuman...', 'info');
+    
+    const sendNext = function() {
+        if (currentIndex >= total) {
+            showToast('Broadcast pengumuman selesai!', 'success');
+            return;
+        }
+        
+        const member = targets[currentIndex];
+        let phoneStr = member.phone.replace(/[^0-9]/g, '');
+        if (phoneStr.startsWith('0')) phoneStr = '62' + phoneStr.slice(1);
+        
+        const waText = `*PENGUMUMAN KELOMPOK ASSALAM*\n\nAssalamualaikum Bapak/Ibu ${member.name},\n\n${text}`;
+        
+        const token = 'mtkmOJjip5W7mNgGvaEAVGqiQAYm2V9PU3UH6OEoqHGMygqqgpsYHEY.UeCGfH8R';
+        const url = `https://smg.wablas.com/api/send-message?phone=${phoneStr}&message=${encodeURIComponent(waText)}&token=${token}`;
+
+        const img = new Image();
+        img.src = url;
+        
+        currentIndex++;
+        setTimeout(sendNext, 1500);
+    };
+    
+    sendNext();
+};
+
+// Hook into app initialization to load announcement
+const origInit = window.onload;
+window.onload = function() {
+    if(origInit) origInit();
+    loadAnnouncement();
 };

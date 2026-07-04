@@ -51,6 +51,32 @@
         </div>
     </div>
 
+    <!-- EDIT ANNOUNCEMENT MODAL -->
+    <div id="announcement-modal" class="login-overlay">
+        <div class="login-card" style="max-width: 600px; width: 90%;">
+            <div class="login-header">
+                <h2 style="color: #2563eb;">Edit Pengumuman</h2>
+                <p>Tuliskan informasi penting untuk seluruh jamaah</p>
+            </div>
+            
+            <div class="form-group-vertical" style="margin-top: 20px;">
+                <textarea id="input-announcement" class="form-input" style="height: 200px; font-size: 16px; line-height: 1.5; padding: 15px;" placeholder="Ketik pengumuman di sini..."></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 25px;">
+                <button class="btn btn-primary" onclick="window.saveAnnouncement()" style="flex: 2; background: #2563eb; color: white;">
+                    <i data-lucide="save"></i> Simpan
+                </button>
+                <button class="btn btn-primary" onclick="window.broadcastAnnouncement()" style="flex: 2; background: #10b981; color: white; border-color: #10b981;" title="Kirim teks ini ke seluruh jamaah via WA">
+                    <i data-lucide="send"></i> Broadcast WA
+                </button>
+                <button class="btn btn-secondary" onclick="window.closeAnnouncementModal()" style="flex: 1;">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN APP -->
     <div id="app-container" class="app-container" style="display: none;">
         <!-- Sidebar Navigation -->
@@ -66,6 +92,10 @@
             </div>
 
             <nav class="sidebar-nav">
+                <button class="nav-item" data-tab="announcement" id="nav-announcement">
+                    <i data-lucide="megaphone"></i>
+                    <span>Pengumuman</span>
+                </button>
                 <button class="nav-item active" data-tab="dashboard" id="nav-dashboard">
                     <i data-lucide="layout-dashboard"></i>
                     <span>Dashboard</span>
@@ -128,6 +158,33 @@
                     <i data-lucide="log-out"></i>
                 </button>
             </header>
+
+            <!-- TAB: Announcement -->
+            <section id="tab-announcement" class="tab-panel">
+                <div class="content-header" style="margin-bottom: 1rem;">
+                    <div class="header-title">
+                        <h2>Papan Pengumuman</h2>
+                        <p class="text-muted">Informasi terbaru seputar kegiatan Kelompok Assalam</p>
+                    </div>
+                    <button class="btn btn-primary admin-only" onclick="window.openEditAnnouncementModal()" style="display: none; background: #2563eb; color: white;">
+                        <i data-lucide="edit-3"></i> Edit Pengumuman
+                    </button>
+                </div>
+                
+                <div class="dashboard-grid full-width">
+                    <div class="content-card" style="padding: 0; overflow: hidden; border: 2px solid #3b82f6; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);">
+                        <div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 20px; text-align: center;">
+                            <i data-lucide="bell" style="width: 48px; height: 48px; margin-bottom: 10px; color: #fbbf24;"></i>
+                            <h2 style="margin: 0; font-family: 'Times New Roman', Times, serif; font-size: 28px; letter-spacing: 1px;">INFORMASI PENTING</h2>
+                        </div>
+                        <div style="padding: 40px 30px; background: #f8fafc; min-height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                            <div id="announcement-display" style="font-size: 20px; line-height: 1.6; color: #1e293b; max-width: 800px; white-space: pre-wrap; font-weight: 500;">
+                                Belum ada pengumuman saat ini.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <!-- TAB 1: Dashboard -->
             <section id="tab-dashboard" class="tab-panel active">
@@ -623,7 +680,7 @@
     <!-- Supabase SDK & Client -->
     <script src="supabase-client.js"></script>
 
-    <script src="app.js?bypass=1783092102544" defer></script>
+    <script src="app.js?bypass=1783166666373" defer></script>
 
     <!-- PWA Service Worker Registration -->
     <script>
