@@ -1,4 +1,4 @@
-const CACHE_NAME = 'absen-assalam-v1783176081229';
+const CACHE_NAME = 'absen-assalam-v1783178191174';
 const ASSETS = [
   './',
   './style.css?v=16',
