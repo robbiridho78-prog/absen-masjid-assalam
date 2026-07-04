@@ -1638,7 +1638,7 @@ function renderScheduleTab() {
     container.innerHTML = "";
     
     // Sort schedules by date descending
-    const sortedSchedules = [...state.schedules].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const sortedSchedules = [...state.schedules].filter(s => s.id !== 'GLOBAL_ANNOUNCEMENT').sort((a, b) => new Date(b.date) - new Date(a.date));
     
     if (sortedSchedules.length === 0) {
         container.innerHTML = `
