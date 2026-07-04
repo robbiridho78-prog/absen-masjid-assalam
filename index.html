@@ -77,6 +77,27 @@
         </div>
     </div>
 
+    
+    <!-- MISSING JAMAAH MODAL -->
+    <div id="missing-jamaah-modal" class="login-overlay">
+        <div class="login-card" style="max-width: 600px; width: 90%;">
+            <div class="login-header" style="text-align: left; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 15px;">
+                <h2 style="color: #ef4444; display: flex; align-items: center; gap: 10px;">
+                    <i data-lucide="alert-triangle"></i> Jamaah Perlu Perhatian
+                </h2>
+                <p style="margin-top: 5px;">Daftar jamaah yang Alpa 3x berturut-turut atau lebih.</p>
+            </div>
+            
+            <div id="missing-jamaah-modal-content">
+                <!-- Rendered by JS -->
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                <button class="btn btn-secondary" onclick="window.closeMissingJamaahModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- MAIN APP -->
     <div id="app-container" class="app-container" style="display: none;">
         <!-- Sidebar Navigation -->
@@ -676,7 +697,7 @@
     <!-- Supabase SDK & Client -->
     <script src="supabase-client.js"></script>
 
-    <script src="app.js?bypass=1783168540035" defer></script>
+    <script src="app.js?bypass=1783175557058" defer></script>
 
     <!-- PWA Service Worker Registration -->
     <script>
