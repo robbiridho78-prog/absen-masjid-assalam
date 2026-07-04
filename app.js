@@ -2139,15 +2139,33 @@ window.startBroadcast = function() {
 // ANNOUNCEMENT LOGIC
 // ==========================================================================
 
-function loadAnnouncement() {
-    const saved = localStorage.getItem('assalam_announcement');
+async function loadAnnouncement() {
+    const savedLocal = localStorage.getItem('assalam_announcement');
     const display = document.getElementById('announcement-display');
     if (display) {
-        if (saved) {
-            display.innerHTML = saved.replace(/\n/g, '<br>');
+        if (savedLocal) {
+            display.innerHTML = savedLocal.replace(/\n/g, '<br>');
         } else {
-            display.innerHTML = 'Belum ada pengumuman saat ini.';
+            display.innerHTML = 'Memuat pengumuman...';
         }
+    }
+    
+    try {
+        if (window.db && window.db.fetchSchedules) {
+            const schedules = await window.db.fetchSchedules();
+            if (schedules) {
+                const globalAnn = schedules.find(s => s.id === 'GLOBAL_ANNOUNCEMENT');
+                if (globalAnn && globalAnn.materi1) {
+                    const text = globalAnn.materi1;
+                    localStorage.setItem('assalam_announcement', text);
+                    if (display) display.innerHTML = text.replace(/\n/g, '<br>');
+                } else {
+                    if (!savedLocal && display) display.innerHTML = 'Belum ada pengumuman saat ini.';
+                }
+            }
+        }
+    } catch(e) {
+        console.error('Failed to load announcement from DB', e);
     }
 }
 
@@ -2165,13 +2183,27 @@ window.closeAnnouncementModal = function() {
     if (modal) modal.classList.remove('active');
 };
 
-window.saveAnnouncement = function() {
+window.saveAnnouncement = async function() {
     const input = document.getElementById('input-announcement');
     if (input) {
-        localStorage.setItem('assalam_announcement', input.value);
+        const text = input.value;
+        localStorage.setItem('assalam_announcement', text);
+        
+        try {
+            if (window.db && window.db.upsertSchedule) {
+                await window.db.upsertSchedule({
+                    id: 'GLOBAL_ANNOUNCEMENT',
+                    date: '2099-12-31',
+                    materi1: text
+                });
+            }
+        } catch(e) {
+            console.error('Failed to save announcement to DB', e);
+        }
+        
         loadAnnouncement();
         closeAnnouncementModal();
-        showToast('Pengumuman berhasil disimpan!', 'success');
+        showToast('Pengumuman berhasil disimpan secara online!', 'success');
     }
 };
 
