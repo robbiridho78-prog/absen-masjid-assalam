@@ -1918,9 +1918,20 @@ if (localStorage.getItem('assalam_dark_mode') === 'true') {
 }
 
 
+window.openMissingJamaahModal = function() {
+    const modal = document.getElementById('missing-jamaah-modal');
+    if (modal) modal.classList.add('active');
+};
+
+window.closeMissingJamaahModal = function() {
+    const modal = document.getElementById('missing-jamaah-modal');
+    if (modal) modal.classList.remove('active');
+};
+
 function renderMissingJamaahAlert() {
     const container = document.getElementById('missing-jamaah-container');
-    if (!container) return;
+    const modalContent = document.getElementById('missing-jamaah-modal-content');
+    if (!container || !modalContent) return;
     
     // Find missing members
     const missing = [];
@@ -1936,13 +1947,22 @@ function renderMissingJamaahAlert() {
         return;
     }
     
-    let html = `
-        <div class="content-card" style="border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.05); margin-bottom: 20px;">
-            <div class="card-header" style="border-bottom: 1px solid #ef4444;">
-                <h3 style="color: #ef4444;"><i data-lucide="alert-triangle"></i> Jamaah Perlu Perhatian (Alpa >= 3x)</h3>
+    // 1. Render small banner in dashboard
+    container.innerHTML = `
+        <div class="content-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); margin-bottom: 20px; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i data-lucide="alert-triangle" style="color: #ef4444;"></i>
+                <strong style="color: #ef4444;">Ada ${missing.length} Jamaah butuh perhatian (Alpa >= 3x)</strong>
             </div>
-            <div class="card-body">
-                <div class="activity-timeline">
+            <button class="btn btn-secondary" onclick="window.openMissingJamaahModal()" style="border: 1px solid #ef4444; color: #ef4444; padding: 5px 15px; font-size: 13px;">
+                Lihat Detail
+            </button>
+        </div>
+    `;
+    
+    // 2. Render full list inside modal
+    let html = `
+        <div class="activity-timeline" style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
     `;
     
     missing.forEach(item => {
@@ -1952,7 +1972,7 @@ function renderMissingJamaahAlert() {
                 <div class="activity-avatar" style="background: #ef4444; color: white;">${initials}</div>
                 <div class="activity-details">
                     <div class="activity-name">${item.member.name}</div>
-                    <div class="activity-meta">Alpa berturut-turut: <strong>${item.count}x</strong></div>
+                    <div class="activity-meta">Alpa berturut-turut: <strong style="color: #ef4444;">${item.count}x</strong></div>
                 </div>
                 <div class="flex-row items-center gap-2">
                     <button id="btn-rindu-${item.member.id}" class="btn btn-primary" style="background: #10b981; border: none; padding: 6px 12px; font-size: 12px;" onclick="window.sendRinduWA('${item.member.id}', '${item.member.name}')">
@@ -1963,16 +1983,11 @@ function renderMissingJamaahAlert() {
         `;
     });
     
-    html += `
-                </div>
-            </div>
-        </div>
-    `;
+    html += `</div>`;
     
-    container.innerHTML = html;
+    modalContent.innerHTML = html;
     if (window.lucide) window.lucide.createIcons();
 }
-
 
 // ==========================================================================
 // BROADCAST LOGIC
