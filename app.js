@@ -2222,6 +2222,13 @@ window.saveAnnouncement = async function() {
     }
 };
 
+
+window.clearAnnouncement = async function() {
+    if (confirm('Apakah Anda yakin ingin menghapus papan pengumuman ini?')) {
+        document.getElementById('announcement-input').value = '';
+        await window.saveAnnouncement();
+    }
+};
 window.broadcastAnnouncement = function() {
     const input = document.getElementById('input-announcement');
     if (!input || !input.value.trim()) {
