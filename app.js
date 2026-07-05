@@ -2225,7 +2225,7 @@ window.saveAnnouncement = async function() {
 
 window.clearAnnouncement = async function() {
     if (confirm('Apakah Anda yakin ingin menghapus papan pengumuman ini?')) {
-        document.getElementById('announcement-input').value = '';
+        document.getElementById('input-announcement').value = '';
         await window.saveAnnouncement();
     }
 };
