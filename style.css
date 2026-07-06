@@ -321,7 +321,9 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(15px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
     to { opacity: 1; transform: translateY(0); }
 }
 
@@ -1863,3 +1865,43 @@ body.dark-mode .attendance-stats-bar {
 body.dark-mode .progressbar-container {
     background: #334155;
 }
+
+/* Marquee Running Text */
+.marquee-container {
+    background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+}
+
+.marquee-icon {
+    margin-right: 12px;
+    flex-shrink: 0;
+    z-index: 2;
+    background: #1e3a8a;
+    padding-right: 12px;
+    display: flex;
+    align-items: center;
+    box-shadow: 10px 0 10px -5px #1e3a8a;
+}
+
+.marquee-content {
+    white-space: nowrap;
+    animation: scroll-left 25s linear infinite;
+    display: inline-block;
+    padding-left: 100%;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+@keyframes scroll-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
+

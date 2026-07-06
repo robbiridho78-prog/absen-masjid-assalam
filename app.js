@@ -438,6 +438,19 @@ function showToast(message, type = "success") {
 // 5. TAB 1: DASHBOARD DYNAMICS & RENDER
 // ==========================================================================
 function updateDashboard() {
+    // Update Running Text (Marquee)
+    const marqueeContainer = document.getElementById('marquee-container');
+    const marqueeText = document.getElementById('marquee-text');
+    if (marqueeContainer && marqueeText) {
+        const announcement = state.schedules.find(s => s.id === 'GLOBAL_ANNOUNCEMENT');
+        if (announcement && announcement.materi1 && announcement.materi1.trim() !== '') {
+            marqueeText.innerText = announcement.materi1.replace(/\n/g, '  •  ');
+            marqueeContainer.style.display = 'flex';
+        } else {
+            marqueeContainer.style.display = 'none';
+        }
+    }
+
     // 1. Total Registered
     const totalJamaah = state.jamaah.length;
     document.getElementById("stat-total-jamaah").textContent = totalJamaah;
