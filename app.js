@@ -330,21 +330,30 @@ function initializeUI() {
         item.addEventListener("click", () => {
             const targetTab = item.getAttribute("data-tab");
             
-            // Toggle active classes (with animation)
+            // Toggle active classes (with smooth animation)
             navItems.forEach(nav => nav.classList.remove("active"));
-            
-            // Remove active from all panels first
-            tabPanels.forEach(panel => {
-                panel.classList.remove("active");
-            });
-            
             item.classList.add("active");
             
-            // Force reflow so browser notices the class was removed before adding it back
+            // Hide all panels
+            tabPanels.forEach(panel => {
+                panel.classList.remove("active");
+                panel.classList.remove("tab-entering");
+                panel.style.display = "none";
+            });
+            
+            // Show target with animation
             const target = document.getElementById(`tab-${targetTab}`);
             if (target) {
-                void target.offsetWidth; // trigger reflow
-                target.classList.add("active");
+                target.style.display = "block";
+                target.classList.remove("tab-entering");
+                // Force reflow
+                void target.offsetHeight;
+                target.classList.add("tab-entering");
+                // After animation, switch to active class
+                setTimeout(() => {
+                    target.classList.remove("tab-entering");
+                    target.classList.add("active");
+                }, 350);
             }
             
             // Set page title
