@@ -346,17 +346,18 @@ function initializeUI() {
             if (target) {
                 target.style.display = "block";
                 target.style.opacity = "0";
-                target.style.transform = "translateY(16px)";
+                target.style.transform = "translateY(40px) scale(0.95)";
                 
                 requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
-                        target.style.transition = "opacity 0.35s ease, transform 0.35s ease";
+                        // Very obvious 1-second animation
+                        target.style.transition = "opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)";
                         target.style.opacity = "1";
-                        target.style.transform = "translateY(0)";
+                        target.style.transform = "translateY(0) scale(1)";
                         setTimeout(() => {
                             target.style.transition = "";
                             target.classList.add("active");
-                        }, 360);
+                        }, 720);
                     });
                 });
             }
