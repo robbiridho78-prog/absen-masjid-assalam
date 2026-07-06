@@ -330,13 +330,22 @@ function initializeUI() {
         item.addEventListener("click", () => {
             const targetTab = item.getAttribute("data-tab");
             
-            // Toggle active classes
+            // Toggle active classes (with animation)
             navItems.forEach(nav => nav.classList.remove("active"));
-            tabPanels.forEach(panel => panel.classList.remove("active"));
+            
+            // Remove active from all panels first
+            tabPanels.forEach(panel => {
+                panel.classList.remove("active");
+            });
             
             item.classList.add("active");
+            
+            // Force reflow so browser notices the class was removed before adding it back
             const target = document.getElementById(`tab-${targetTab}`);
-            if (target) target.classList.add("active");
+            if (target) {
+                void target.offsetWidth; // trigger reflow
+                target.classList.add("active");
+            }
             
             // Set page title
             if (targetTab === 'leaderboard') {
