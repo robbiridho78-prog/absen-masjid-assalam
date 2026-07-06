@@ -337,23 +337,28 @@ function initializeUI() {
             // Hide all panels
             tabPanels.forEach(panel => {
                 panel.classList.remove("active");
-                panel.classList.remove("tab-entering");
                 panel.style.display = "none";
+                panel.style.opacity = "0";
             });
             
-            // Show target with animation
+            // Show target with animation using Web Animation API
             const target = document.getElementById(`tab-${targetTab}`);
             if (target) {
                 target.style.display = "block";
-                target.classList.remove("tab-entering");
-                // Force reflow
-                void target.offsetHeight;
-                target.classList.add("tab-entering");
-                // After animation, switch to active class
-                setTimeout(() => {
-                    target.classList.remove("tab-entering");
-                    target.classList.add("active");
-                }, 350);
+                target.style.opacity = "0";
+                target.style.transform = "translateY(16px)";
+                
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        target.style.transition = "opacity 0.35s ease, transform 0.35s ease";
+                        target.style.opacity = "1";
+                        target.style.transform = "translateY(0)";
+                        setTimeout(() => {
+                            target.style.transition = "";
+                            target.classList.add("active");
+                        }, 360);
+                    });
+                });
             }
             
             // Set page title
