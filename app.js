@@ -338,28 +338,28 @@ function initializeUI() {
             tabPanels.forEach(panel => {
                 panel.classList.remove("active");
                 panel.style.display = "none";
-                panel.style.opacity = "0";
+                panel.style.opacity = "";
+                panel.style.transform = "";
+                panel.style.transition = "";
             });
             
-            // Show target with animation using Web Animation API
+            // Show target with pure Web Animations API (foolproof)
             const target = document.getElementById(`tab-${targetTab}`);
             if (target) {
                 target.style.display = "block";
-                target.style.opacity = "0";
-                target.style.transform = "translateY(40px) scale(0.95)";
+                target.classList.add("active");
                 
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        // Very obvious 1-second animation
-                        target.style.transition = "opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)";
-                        target.style.opacity = "1";
-                        target.style.transform = "translateY(0) scale(1)";
-                        setTimeout(() => {
-                            target.style.transition = "";
-                            target.classList.add("active");
-                        }, 720);
+                // Use native animate API which works 100% of the time in modern browsers
+                if (target.animate) {
+                    target.animate([
+                        { opacity: 0, transform: 'translateY(25px) scale(0.98)' },
+                        { opacity: 1, transform: 'translateY(0) scale(1)' }
+                    ], {
+                        duration: 400,
+                        easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+                        fill: 'forwards'
                     });
-                });
+                }
             }
             
             // Set page title
