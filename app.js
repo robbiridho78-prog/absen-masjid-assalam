@@ -337,29 +337,19 @@ function initializeUI() {
             // Hide all panels
             tabPanels.forEach(panel => {
                 panel.classList.remove("active");
-                panel.style.display = "none";
-                panel.style.opacity = "";
-                panel.style.transform = "";
-                panel.style.transition = "";
+                panel.classList.remove("animating-in");
+                panel.style = ""; // Clear any old inline styles
             });
             
-            // Show target with pure Web Animations API (foolproof)
+            // Show target
             const target = document.getElementById(`tab-${targetTab}`);
             if (target) {
-                target.style.display = "block";
                 target.classList.add("active");
                 
-                // Use native animate API which works 100% of the time in modern browsers
-                if (target.animate) {
-                    target.animate([
-                        { opacity: 0, transform: 'translateY(25px) scale(0.98)' },
-                        { opacity: 1, transform: 'translateY(0) scale(1)' }
-                    ], {
-                        duration: 400,
-                        easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
-                        fill: 'forwards'
-                    });
-                }
+                // Absolute bulletproof CSS animation trigger
+                target.classList.remove("animating-in");
+                void target.offsetWidth; // Force browser repaint
+                target.classList.add("animating-in");
             }
             
             // Set page title
