@@ -328,6 +328,10 @@ function initializeUI() {
 
     navItems.forEach(item => {
         item.addEventListener("click", () => {
+            // Haptic feedback (vibrate 50ms)
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
             const targetTab = item.getAttribute("data-tab");
             
             // Toggle active classes (with smooth animation)
