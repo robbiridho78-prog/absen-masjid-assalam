@@ -2201,12 +2201,14 @@ async function loadAnnouncement() {
             const schedules = await window.db.fetchSchedules();
             if (schedules) {
                 const globalAnn = schedules.find(s => s.id === 'GLOBAL_ANNOUNCEMENT');
-                if (globalAnn && globalAnn.materi1) {
+                if (globalAnn && globalAnn.materi1 && globalAnn.materi1.trim() !== '') {
                     const text = globalAnn.materi1;
                     localStorage.setItem('assalam_announcement', text);
                     if (display) display.innerHTML = text.replace(/\n/g, '<br>');
                 } else {
-                    if (!savedLocal && display) display.innerHTML = 'Belum ada pengumuman saat ini.';
+                    // It was deleted or is empty in the database
+                    localStorage.removeItem('assalam_announcement');
+                    if (display) display.innerHTML = 'Belum ada pengumuman saat ini.';
                 }
             }
         }
