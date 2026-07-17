@@ -12,27 +12,33 @@
 // ==========================================================================
 window.sendWhatsAppOtomatis = function(phone, status) {
     if (!phone) return;
-    let phoneStr = phone.replace(/[^0-9]/g, '');
-    if (phoneStr.startsWith('0')) phoneStr = '62' + phoneStr.slice(1);
     
-    let waText = '';
-    if (status === 'Sakit') waText = 'Assalamualaikum, kami dari pengurus Kelompok Assalam mendoakan semoga allah Paring cepat lekas sembuh, dan segala penyakit yang di derita nya oleh allah di angkat dan selalu dalam lindungan Allah.';
-    else if (status === 'Ijin' || status === 'Izin') waText = 'Assalamualaikum, kami dari pengurus Kelompok Assalam sudah mencatat izin Bapak/Ibu untuk pengajian hari ini. Semoga Allah Paring, Aman, Lancar dan Barokah.';
-    else if (status === 'Alpa') waText = 'Assalamualaikum, kami perhatikan Bapak/Ibu belum bisa hadir di pengajian hari ini, semoga sehat selalu.';
-    else return;
+    // Split by common delimiters like comma, slash, semicolon, or space
+    const parts = phone.split(/[,/;]|\bdan\b/i);
+    
+    parts.forEach(part => {
+        let phoneStr = part.replace(/[^0-9]/g, '');
+        if (!phoneStr) return;
+        if (phoneStr.startsWith('0')) phoneStr = '62' + phoneStr.slice(1);
+        
+        // Skip if the cleaned number length is too short or too long to be a real number
+        if (phoneStr.length < 9 || phoneStr.length > 15) return;
+        
+        let waText = '';
+        if (status === 'Sakit') waText = 'Assalamualaikum, \nMohon maaf kami dari pengurus kelompok Assalam mendoakan mudah-mudahan Allah paring kesembuhan dan kesehatan yang barokah.';
+        else if (status === 'Ijin' || status === 'Izin') waText = 'Assalamualaikum, kami dari pengurus Kelompok Assalam sudah mencatat izin Bapak/Ibu untuk pengajian hari ini. Semoga Allah Paring, Aman, Lancar dan Barokah.';
+        else if (status === 'Alpa') waText = 'Assalamualaikum, kami perhatikan Bapak/Ibu belum bisa hadir di pengajian hari ini, semoga sehat selalu.';
+        else return;
 
-    const token = 'mtkmOJjip5W7mNgGvaEAVGqiQAYm2V9PU3UH6OEoqHGMygqqgpsYHEY.UeCGfH8R';
-    const url = `https://smg.wablas.com/api/send-message?phone=${phoneStr}&message=${encodeURIComponent(waText)}&token=${token}`;
+        const token = 'mtkmOJjip5W7mNgGvaEAVGqiQAYm2V9PU3UH6OEoqHGMygqqgpsYHEY.UeCGfH8R';
+        const url = `https://smg.wablas.com/api/send-message?phone=${phoneStr}&message=${encodeURIComponent(waText)}&token=${token}`;
 
-    showToast('Sedang memproses WA otomatis...', 'info');
-    
-    // IMAGE HACK TO BYPASS CORS
-    const img = new Image();
-    img.src = url;
-    
-    setTimeout(() => {
-        showToast('Pesan WA otomatis telah diteruskan ke server Wablas!', 'success');
-    }, 1500);
+        showToast('Sedang memproses WA otomatis...', 'info');
+        
+        // IMAGE HACK TO BYPASS CORS
+        const img = new Image();
+        img.src = url;
+    });
 };
 
 let state = {
@@ -100,12 +106,12 @@ function getLocalYMD(dateObj = new Date()) {
 
 // Initialize application on DOM load
 document.addEventListener("DOMContentLoaded", async () => {
-    checkAuthSession();
-
     await loadDataFromDatabase();
     initializeUI();
     initializeClock();
     initializeCharts();
+    
+    checkAuthSession();
     
     // Default: If database is empty, show empty state or alert.
     updateDashboard();
@@ -200,8 +206,11 @@ function applyRolePermissions() {
         // Hide admin-only elements
         const adminElements = document.querySelectorAll('.admin-only');
         adminElements.forEach(el => el.style.display = 'none');
-
         
+        // Explicitly hide missing-jamaah-container for pengabsen
+        const missingContainer = document.getElementById('missing-jamaah-container');
+        if (missingContainer) missingContainer.style.display = 'none';
+
         // Add CSS rule to hide action columns in tables
         let style = document.createElement('style');
         style.innerHTML = '.action-buttons-group { display: none !important; } .admin-only { display: none !important; }';
@@ -219,7 +228,10 @@ function applyRolePermissions() {
         // Show admin-only elements
         const adminElements = document.querySelectorAll('.admin-only');
         adminElements.forEach(el => el.style.display = '');
-
+        
+        // Explicitly show missing-jamaah-container for admin
+        const missingContainer = document.getElementById('missing-jamaah-container');
+        if (missingContainer) missingContainer.style.display = '';
     }
 }
 
@@ -459,15 +471,27 @@ function updateDashboard() {
     // Update Running Text (Marquee)
     const marqueeContainer = document.getElementById('marquee-container');
     const marqueeText = document.getElementById('marquee-text');
-    if (marqueeContainer && marqueeText) {
-        const announcement = state.schedules.find(s => s.id === 'GLOBAL_ANNOUNCEMENT');
-        if (announcement && announcement.materi1 && announcement.materi1.trim() !== '') {
-            marqueeText.innerText = announcement.materi1.replace(/\n/g, '  •  ');
-            marqueeContainer.style.display = 'flex';
-        } else {
-            marqueeContainer.style.display = 'none';
+    const marqueeContainerAtt = document.getElementById('marquee-container-attendance');
+    const marqueeTextAtt = document.getElementById('marquee-text-attendance');
+    
+    const updateMarqueeElement = (container, textEl, text) => {
+        if (container && textEl) {
+            if (text && text.trim() !== '') {
+                textEl.innerText = text.replace(/\n/g, '  •  ');
+                container.style.display = 'flex';
+                // Force animation restart/reflow
+                textEl.style.animation = 'none';
+                textEl.offsetHeight; /* trigger reflow */
+                textEl.style.animation = '';
+            } else {
+                container.style.display = 'none';
+            }
         }
-    }
+    };
+
+    const text = localStorage.getItem('assalam_announcement');
+    updateMarqueeElement(marqueeContainer, marqueeText, text);
+    updateMarqueeElement(marqueeContainerAtt, marqueeTextAtt, text);
 
     // 1. Total Registered
     const totalJamaah = state.jamaah.length;
@@ -664,12 +688,14 @@ function renderAttendanceTab() {
         
 
         let waButtonHtml = '';
-        let phoneStr = m.phone ? m.phone.replace(/[^0-9]/g, '') : '';
+        // Extract the first number if there are multiple numbers
+        let rawPhone = m.phone ? m.phone.split(/[,/;]|\bdan\b/i)[0] : '';
+        let phoneStr = rawPhone.replace(/[^0-9]/g, '');
         if (phoneStr) {
             if (phoneStr.startsWith('0')) phoneStr = '62' + phoneStr.slice(1);
             let waText = '';
             if (currentStatus === 'Sakit') {
-                waText = encodeURIComponent("Assalamualaikum, kami dari pengurus Kelompok Assalam mendoakan semoga allah Paring cepat lekas sembuh, dan segala penyakit yang di derita nya oleh allah di angkat dan selalu dalam lindungan Allah.");
+                waText = encodeURIComponent("Assalamualaikum, \nMohon maaf kami dari pengurus kelompok Assalam mendoakan mudah-mudahan Allah paring kesembuhan dan kesehatan yang barokah.");
             } else if (currentStatus === 'Ijin') {
                 waText = encodeURIComponent("Assalamualaikum, kami dari pengurus Kelompok Assalam sudah mencatat izin Bapak/Ibu untuk pengajian hari ini. Semoga Allah Paring, Aman, Lancar dan Barokah.");
             } else if (currentStatus === 'Alpa') {
@@ -872,18 +898,24 @@ window.sendRinduWA = function(memberId, memberName) {
         showToast('Nomor HP tidak ditemukan', 'warning');
         return;
     }
-    let phoneStr = m.phone.replace(/[^0-9]/g, '');
-    if (phoneStr.startsWith('0')) phoneStr = '62' + phoneStr.slice(1);
     
-    const waText = 'Assalamualaikum Bapak/Ibu ' + memberName + '. Kami perhatikan Bapak/Ibu sudah 3x pengajian tidak hadir. Apakah sedang ada udzur/kendala? Kami merindukan kehadirannya di Kelompok Assalam. Semoga sehat selalu.';
+    const parts = m.phone.split(/[,/;]|\bdan\b/i);
     
-    const token = 'mtkmOJjip5W7mNgGvaEAVGqiQAYm2V9PU3UH6OEoqHGMygqqgpsYHEY.UeCGfH8R';
-    const url = `https://smg.wablas.com/api/send-message?phone=${phoneStr}&message=${encodeURIComponent(waText)}&token=${token}`;
+    parts.forEach(part => {
+        let phoneStr = part.replace(/[^0-9]/g, '');
+        if (!phoneStr) return;
+        if (phoneStr.startsWith('0')) phoneStr = '62' + phoneStr.slice(1);
+        if (phoneStr.length < 9 || phoneStr.length > 15) return;
+        
+        const waText = 'Assalamualaikum Bapak/Ibu ' + memberName + '. Kami perhatikan Bapak/Ibu sudah 3x pengajian tidak hadir. Apakah sedang ada udzur/kendala? Kami merindukan kehadirannya di Kelompok Assalam. Semoga sehat selalu.';
+        
+        const token = 'mtkmOJjip5W7mNgGvaEAVGqiQAYm2V9PU3UH6OEoqHGMygqqgpsYHEY.UeCGfH8R';
+        const url = `https://smg.wablas.com/api/send-message?phone=${phoneStr}&message=${encodeURIComponent(waText)}&token=${token}`;
 
-    showToast('Mengirim WA Rindu ke ' + memberName + '...', 'info');
-    const img = new Image();
-    img.src = url;
-    
+        showToast('Mengirim WA Rindu ke ' + memberName + '...', 'info');
+        const img = new Image();
+        img.src = url;
+    });
     setTimeout(() => {
         showToast('Pesan Rindu terkirim!', 'success');
         
@@ -2188,6 +2220,26 @@ window.startBroadcast = function() {
 async function loadAnnouncement() {
     const savedLocal = localStorage.getItem('assalam_announcement');
     const display = document.getElementById('announcement-display');
+    const marqueeContainer = document.getElementById('marquee-container');
+    const marqueeText = document.getElementById('marquee-text');
+    const marqueeContainerAtt = document.getElementById('marquee-container-attendance');
+    const marqueeTextAtt = document.getElementById('marquee-text-attendance');
+
+    const updateMarqueeElement = (container, textEl, text) => {
+        if (container && textEl) {
+            if (text && text.trim() !== '') {
+                textEl.innerText = text.replace(/\n/g, '  •  ');
+                container.style.display = 'flex';
+                // Force animation restart/reflow
+                textEl.style.animation = 'none';
+                textEl.offsetHeight; /* trigger reflow */
+                textEl.style.animation = '';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+    };
+
     if (display) {
         if (savedLocal) {
             display.innerHTML = savedLocal.replace(/\n/g, '<br>');
@@ -2195,6 +2247,10 @@ async function loadAnnouncement() {
             display.innerHTML = 'Memuat pengumuman...';
         }
     }
+    
+    // Initial sync of marquee from local storage
+    updateMarqueeElement(marqueeContainer, marqueeText, savedLocal);
+    updateMarqueeElement(marqueeContainerAtt, marqueeTextAtt, savedLocal);
     
     try {
         if (window.db && window.db.fetchSchedules) {
@@ -2205,10 +2261,16 @@ async function loadAnnouncement() {
                     const text = globalAnn.materi1;
                     localStorage.setItem('assalam_announcement', text);
                     if (display) display.innerHTML = text.replace(/\n/g, '<br>');
+                    
+                    updateMarqueeElement(marqueeContainer, marqueeText, text);
+                    updateMarqueeElement(marqueeContainerAtt, marqueeTextAtt, text);
                 } else {
                     // It was deleted or is empty in the database
                     localStorage.removeItem('assalam_announcement');
                     if (display) display.innerHTML = 'Belum ada pengumuman saat ini.';
+                    
+                    updateMarqueeElement(marqueeContainer, marqueeText, '');
+                    updateMarqueeElement(marqueeContainerAtt, marqueeTextAtt, '');
                 }
             }
         }

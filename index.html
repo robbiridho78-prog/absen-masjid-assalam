@@ -82,7 +82,7 @@
 
     
     <!-- MISSING JAMAAH MODAL -->
-    <div id="missing-jamaah-modal" class="login-overlay">
+    <div id="missing-jamaah-modal" class="login-overlay admin-only">
         <div class="login-card" style="max-width: 600px; width: 90%;">
             <div class="login-header" style="text-align: left; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 15px;">
                 <h2 style="color: #ef4444; display: flex; align-items: center; gap: 10px;">
@@ -283,7 +283,7 @@
                 
                 
                 <!-- Broadcast Controls -->
-                <div class="dashboard-grid full-width" style="margin-bottom: 20px;">
+                <div class="dashboard-grid full-width admin-only" style="margin-bottom: 20px;">
                     <div class="content-card" style="padding: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background: linear-gradient(to right, rgba(37, 99, 235, 0.1), rgba(16, 185, 129, 0.1)); border: 1px solid rgba(37, 99, 235, 0.2);">
                         <div style="flex: 1; min-width: 200px;">
                             <h3 style="margin-bottom: 5px; color: #2563eb;"><i data-lucide="radio"></i> Fitur Siaran (Broadcast)</h3>
@@ -296,7 +296,7 @@
                 </div>
 
                 <!-- Missing Jamaah Alert -->
-                <div id="missing-jamaah-container"></div>
+                <div id="missing-jamaah-container" class="admin-only"></div>
                 
                 <!-- Charts & Activity Row -->
                 <div class="dashboard-grid full-width">
@@ -334,6 +334,12 @@
 
             <!-- TAB 2: Attendance Marking -->
             <section id="tab-attendance" class="tab-panel">
+                <!-- Running Text in Attendance Tab -->
+                <div class="marquee-container" id="marquee-container-attendance" style="display: none; margin-bottom: 15px;">
+                    <div class="marquee-icon"><i data-lucide="megaphone" style="width: 20px; height: 20px; color: #fbbf24;"></i> <strong style="margin-left: 8px; color: #fbbf24;">INFO:</strong></div>
+                    <div class="marquee-content" id="marquee-text-attendance">Memuat informasi...</div>
+                </div>
+
                 <!-- Filter Bar -->
                 <div class="filter-bar content-card">
                     <div class="filter-group">
@@ -706,7 +712,7 @@
     <!-- Supabase SDK & Client -->
     <script src="supabase-client.js"></script>
 
-    <script src="app.js?bypass=1783399098339" defer></script>
+    <script src="app.js?bypass=1784166200000" defer></script>
 
     <!-- PWA Service Worker Registration -->
     <script>
