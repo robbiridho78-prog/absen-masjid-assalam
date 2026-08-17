@@ -1985,7 +1985,7 @@ window.generateRecapText = function() {
             return;
         }
         
-        result += `*Kehadiran Jamaah (H: Hadir, I: Izin, S: Sakit, A: Alpa):*\n`;
+        result += `*Kehadiran Jamaah:*\n`;
         
         state.jamaah.forEach((m, index) => {
             let hadir = 0, izin = 0, sakit = 0, alpa = 0;
@@ -2000,7 +2000,11 @@ window.generateRecapText = function() {
             });
             
             const pct = Math.round((hadir / totalMeetings) * 100);
-            result += `${index + 1}. ${m.name}: H:${hadir}, I:${izin}, S:${sakit}, A:${alpa} (${pct}%)\n`;
+            result += `${index + 1}. *${m.name}* (Kehadiran: ${pct}%)\n`;
+            result += `   - Hadir: ${hadir}x\n`;
+            result += `   - Izin: ${izin}x\n`;
+            result += `   - Sakit: ${sakit}x\n`;
+            result += `   - Alpa: ${alpa}x\n\n`;
         });
         
         result += '\n_Semoga Allah senantiasa memberikan kesehatan, kelancaran, dan kebarokahan bagi kita semua. Amin._';
