@@ -82,7 +82,7 @@
 
     
     <!-- MISSING JAMAAH MODAL -->
-    <div id="missing-jamaah-modal" class="login-overlay admin-only">
+    <div id="missing-jamaah-modal" class="login-overlay">
         <div class="login-card" style="max-width: 600px; width: 90%;">
             <div class="login-header" style="text-align: left; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 15px;">
                 <h2 style="color: #ef4444; display: flex; align-items: center; gap: 10px;">
@@ -296,7 +296,7 @@
                 </div>
 
                 <!-- Missing Jamaah Alert -->
-                <div id="missing-jamaah-container" class="admin-only"></div>
+                <div id="missing-jamaah-container"></div>
                 
                 <!-- Charts & Activity Row -->
                 <div class="dashboard-grid full-width">
@@ -712,14 +712,9 @@
     <!-- Supabase SDK & Client -->
     <script src="supabase-client.js"></script>
 
-    <script src="app.js?bypass=1784166200000" defer></script>
+    <script src="app.js?bypass=1784400742000" defer></script>
 
-    <!-- PWA Service Worker Registration -->
-    <script>
-      /* SW disabled */
-        });
-      }
-    </script>
+
 <script>
 if('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(function(registrations) {

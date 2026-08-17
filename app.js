@@ -106,12 +106,12 @@ function getLocalYMD(dateObj = new Date()) {
 
 // Initialize application on DOM load
 document.addEventListener("DOMContentLoaded", async () => {
+    checkAuthSession();
+
     await loadDataFromDatabase();
     initializeUI();
     initializeClock();
     initializeCharts();
-    
-    checkAuthSession();
     
     // Default: If database is empty, show empty state or alert.
     updateDashboard();
@@ -206,11 +206,8 @@ function applyRolePermissions() {
         // Hide admin-only elements
         const adminElements = document.querySelectorAll('.admin-only');
         adminElements.forEach(el => el.style.display = 'none');
-        
-        // Explicitly hide missing-jamaah-container for pengabsen
-        const missingContainer = document.getElementById('missing-jamaah-container');
-        if (missingContainer) missingContainer.style.display = 'none';
 
+        
         // Add CSS rule to hide action columns in tables
         let style = document.createElement('style');
         style.innerHTML = '.action-buttons-group { display: none !important; } .admin-only { display: none !important; }';
@@ -228,10 +225,7 @@ function applyRolePermissions() {
         // Show admin-only elements
         const adminElements = document.querySelectorAll('.admin-only');
         adminElements.forEach(el => el.style.display = '');
-        
-        // Explicitly show missing-jamaah-container for admin
-        const missingContainer = document.getElementById('missing-jamaah-container');
-        if (missingContainer) missingContainer.style.display = '';
+
     }
 }
 
@@ -1816,7 +1810,7 @@ function deleteSchedule(id) {
 }
 
 // ==========================================================================
-// WEEKLY RECAP GENERATOR
+// WEEKLY/MONTHLY RECAP GENERATOR
 // ==========================================================================
 window.openRecapModal = function() {
     let modal = document.getElementById('recap-modal');
@@ -1828,13 +1822,28 @@ window.openRecapModal = function() {
         <div class="login-card" style="max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
             <div class="login-header">
                 <h2 style="font-family: 'Times New Roman', Times, serif;">Rekap Pengajian</h2>
-                <p>Laporan Kehadiran Harian</p>
+                <p>Laporan Kehadiran</p>
             </div>
-            <div class="form-group-vertical">
+            
+            <div class="form-group-vertical" style="margin-bottom: 12px;">
+                <label>Pilih Periode Laporan</label>
+                <select id="recap-type" class="form-input" onchange="window.toggleRecapType()">
+                    <option value="daily">Harian / Per Pertemuan</option>
+                    <option value="monthly">Bulanan (Keseluruhan Bulan)</option>
+                </select>
+            </div>
+
+            <div class="form-group-vertical" id="recap-daily-group">
                 <label>Tanggal Pengajian</label>
                 <input type="date" id="recap-date-1" class="form-input">
                 <div id="recap-quick-buttons" style="display: flex; gap: 8px; margin-top: 10px;"></div>
             </div>
+
+            <div class="form-group-vertical" id="recap-monthly-group" style="display: none;">
+                <label>Pilih Bulan & Tahun</label>
+                <input type="month" id="recap-month" class="form-input">
+            </div>
+
             <div class="form-group-vertical" style="margin-top: 15px;">
                 <label>Hasil Rekap (Bisa diedit manual)</label>
                 <textarea id="recap-result-text" class="form-input" style="height: 250px; font-size: 14px; white-space: pre-wrap;"></textarea>
@@ -1856,6 +1865,10 @@ window.openRecapModal = function() {
         const dashDate = document.getElementById("attendance-date") ? document.getElementById("attendance-date").value : new Date().toISOString().split('T')[0];
         document.getElementById('recap-date-1').value = dashDate;
         
+        // Default month to current month
+        const currentMonthVal = dashDate.substring(0, 7); // YYYY-MM
+        document.getElementById('recap-month').value = currentMonthVal;
+        
         // Setup Quick Buttons
         const todayD = new Date();
         const d1 = new Date(todayD);
@@ -1876,60 +1889,123 @@ window.openRecapModal = function() {
     }
 };
 
-window.generateRecapText = function() {
-    const date1 = document.getElementById('recap-date-1').value;
-    
-    if (!date1) {
-        showToast('Pilih tanggal pengajian', 'warning');
-        return;
+window.toggleRecapType = function() {
+    const type = document.getElementById('recap-type').value;
+    const dailyGroup = document.getElementById('recap-daily-group');
+    const monthlyGroup = document.getElementById('recap-monthly-group');
+    if (type === 'daily') {
+        dailyGroup.style.display = 'block';
+        monthlyGroup.style.display = 'none';
+    } else {
+        dailyGroup.style.display = 'none';
+        monthlyGroup.style.display = 'block';
     }
+};
+
+window.generateRecapText = function() {
+    const type = document.getElementById('recap-type') ? document.getElementById('recap-type').value : 'daily';
     
-    let result = '*Laporan Kehadiran Pengajian Kelompok Assalam*\n';
-    result += 'Tanggal: ' + formatDateId(date1) + '\n\n';
-    
-    let totalHadir = 0, totalIzin = 0, totalSakit = 0, totalAlpa = 0;
-    const listHadir = new Set();
-    const listIzin = new Set();
-    const listSakit = new Set();
-    const listAlpa = new Set();
-    
-    const logs = state.attendance.filter(log => log.date === date1);
-    
-    state.jamaah.forEach(m => {
-        const log = logs.find(l => l.memberId === m.id);
-        const stat = log ? (log.status || (log.present ? 'Hadir' : 'Alpa')) : 'Alpa';
+    if (type === 'daily') {
+        const date1 = document.getElementById('recap-date-1').value;
         
-        if (stat === 'Hadir') { totalHadir++; listHadir.add(m.name); }
-        else if (stat === 'Izin' || stat === 'Ijin') { totalIzin++; listIzin.add(m.name); }
-        else if (stat === 'Sakit') { totalSakit++; listSakit.add(m.name); }
-        else { totalAlpa++; listAlpa.add(m.name); }
-    });
-    
-    const totalSessions = state.jamaah.length;
-    const avgHadir = totalSessions > 0 ? Math.round((totalHadir / totalSessions) * 100) : 0;
-    
-    result += `*Total Jamaah: ${state.jamaah.length} orang*\n`;
-    result += `*Tingkat Kehadiran: ${avgHadir}%*\n\n`;
-    
-    result += `*Hadir (${listHadir.size}):*\n`;
-    if (listHadir.size > 0) result += '- ' + Array.from(listHadir).join('\n- ') + '\n';
-    else result += '- Nihil\n\n';
-    
-    result += `*Sakit (${listSakit.size}):*\n`;
-    if (listSakit.size > 0) result += '- ' + Array.from(listSakit).join('\n- ') + '\n';
-    else result += '- Nihil\n';
-    
-    result += `\n*Izin (${listIzin.size}):*\n`;
-    if (listIzin.size > 0) result += '- ' + Array.from(listIzin).join('\n- ') + '\n';
-    else result += '- Nihil\n';
-    
-    result += `\n*Tanpa Keterangan/Alpa (${listAlpa.size}):*\n`;
-    if (listAlpa.size > 0) result += '- ' + Array.from(listAlpa).join('\n- ') + '\n';
-    else result += '- Nihil\n';
-    
-    result += '\n_Semoga Allah senantiasa memberikan kesehatan, kelancaran, dan kebarokahan bagi kita semua. Amin._';
-    
-    document.getElementById('recap-result-text').value = result;
+        if (!date1) {
+            showToast('Pilih tanggal pengajian', 'warning');
+            return;
+        }
+        
+        let result = '*Laporan Kehadiran Pengajian Kelompok Assalam*\n';
+        result += 'Tanggal: ' + formatDateId(date1) + '\n\n';
+        
+        let totalHadir = 0, totalIzin = 0, totalSakit = 0, totalAlpa = 0;
+        const listHadir = new Set();
+        const listIzin = new Set();
+        const listSakit = new Set();
+        const listAlpa = new Set();
+        
+        const logs = state.attendance.filter(log => log.date === date1);
+        
+        state.jamaah.forEach(m => {
+            const log = logs.find(l => l.memberId === m.id);
+            const stat = log ? (log.status || (log.present ? 'Hadir' : 'Alpa')) : 'Alpa';
+            
+            if (stat === 'Hadir') { totalHadir++; listHadir.add(m.name); }
+            else if (stat === 'Izin' || stat === 'Ijin') { totalIzin++; listIzin.add(m.name); }
+            else if (stat === 'Sakit') { totalSakit++; listSakit.add(m.name); }
+            else { totalAlpa++; listAlpa.add(m.name); }
+        });
+        
+        const totalSessions = state.jamaah.length;
+        const avgHadir = totalSessions > 0 ? Math.round((totalHadir / totalSessions) * 100) : 0;
+        
+        result += `*Total Jamaah: ${state.jamaah.length} orang*\n`;
+        result += `*Tingkat Kehadiran: ${avgHadir}%*\n\n`;
+        
+        result += `*Hadir (${listHadir.size}):*\n`;
+        if (listHadir.size > 0) result += '- ' + Array.from(listHadir).join('\n- ') + '\n';
+        else result += '- Nihil\n\n';
+        
+        result += `*Sakit (${listSakit.size}):*\n`;
+        if (listSakit.size > 0) result += '- ' + Array.from(listSakit).join('\n- ') + '\n';
+        else result += '- Nihil\n';
+        
+        result += `\n*Izin (${listIzin.size}):*\n`;
+        if (listIzin.size > 0) result += '- ' + Array.from(listIzin).join('\n- ') + '\n';
+        else result += '- Nihil\n';
+        
+        result += `\n*Tanpa Keterangan/Alpa (${listAlpa.size}):*\n`;
+        if (listAlpa.size > 0) result += '- ' + Array.from(listAlpa).join('\n- ') + '\n';
+        else result += '- Nihil\n';
+        
+        result += '\n_Semoga Allah senantiasa memberikan kesehatan, kelancaran, dan kebarokahan bagi kita semua. Amin._';
+        
+        document.getElementById('recap-result-text').value = result;
+    } else {
+        const monthVal = document.getElementById('recap-month').value;
+        if (!monthVal) {
+            showToast('Pilih bulan pengajian', 'warning');
+            return;
+        }
+        
+        // Month name helper
+        const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const parts = monthVal.split('-');
+        const monthName = monthNames[parseInt(parts[1], 10) - 1] + ' ' + parts[0];
+        
+        // Filter meetings in this month
+        const meetingsInMonth = [...new Set(state.attendance.filter(log => log.date.startsWith(monthVal)).map(log => log.date))].sort();
+        const totalMeetings = meetingsInMonth.length;
+        
+        let result = `*Laporan Bulanan Kehadiran Pengajian Kelompok Assalam*\n`;
+        result += `Bulan: ${monthName}\n`;
+        result += `Total Pertemuan: ${totalMeetings}x\n\n`;
+        
+        if (totalMeetings === 0) {
+            result += `Belum ada data kehadiran terekam untuk bulan ini.`;
+            document.getElementById('recap-result-text').value = result;
+            return;
+        }
+        
+        result += `*Kehadiran Jamaah (H: Hadir, I: Izin, S: Sakit, A: Alpa):*\n`;
+        
+        state.jamaah.forEach((m, index) => {
+            let hadir = 0, izin = 0, sakit = 0, alpa = 0;
+            
+            meetingsInMonth.forEach(date => {
+                const log = state.attendance.find(l => l.date === date && l.memberId === m.id);
+                const stat = log ? (log.status || (log.present ? 'Hadir' : 'Alpa')) : 'Alpa';
+                if (stat === 'Hadir') hadir++;
+                else if (stat === 'Izin' || stat === 'Ijin') izin++;
+                else if (stat === 'Sakit') sakit++;
+                else alpa++;
+            });
+            
+            const pct = Math.round((hadir / totalMeetings) * 100);
+            result += `${index + 1}. ${m.name}: H:${hadir}, I:${izin}, S:${sakit}, A:${alpa} (${pct}%)\n`;
+        });
+        
+        result += '\n_Semoga Allah senantiasa memberikan kesehatan, kelancaran, dan kebarokahan bagi kita semua. Amin._';
+        document.getElementById('recap-result-text').value = result;
+    }
 };
 
 window.copyRecapText = function() {
