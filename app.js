@@ -425,9 +425,12 @@ function initializeUI() {
     
     // Settings actions
     document.getElementById("form-settings-mosque").addEventListener("submit", saveMosqueSettings);
-    document.getElementById("btn-export-json").addEventListener("click", exportDataJSON);
-    document.getElementById("btn-export-csv").addEventListener("click", exportDataCSV);
-    document.getElementById("import-json-file").addEventListener("change", importDataJSON);
+    const btnExportJson = document.getElementById("btn-export-json");
+    if (btnExportJson) btnExportJson.addEventListener("click", exportDataJSON);
+    const btnExportCsv = document.getElementById("btn-export-csv");
+    if (btnExportCsv) btnExportCsv.addEventListener("click", exportDataCSV);
+    const importJsonFile = document.getElementById("import-json-file");
+    if (importJsonFile) importJsonFile.addEventListener("change", importDataJSON);
     document.getElementById("btn-generate-mock").addEventListener("click", handleGenerateMock);
     document.getElementById("btn-reset-leaderboard").addEventListener("click", handleResetLeaderboard);
     document.getElementById("btn-clear-db").addEventListener("click", handleClearDatabase);
