@@ -1856,6 +1856,9 @@ window.openRecapModal = function() {
                 <button class="btn btn-primary" onclick="copyRecapText()" style="flex: 1; background: #64748b; border: none;"><i data-lucide="copy"></i> Copy Teks</button>
                 <button class="btn btn-primary" onclick="sendRecapWA()" style="flex: 1; background: #25D366; border: none;"><i data-lucide="send"></i> Kirim via WA</button>
             </div>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn btn-primary" onclick="downloadRecapExcel()" style="flex: 1; background: #0f766e; border: none;"><i data-lucide="download"></i> Download Excel (CSV)</button>
+            </div>
         </div>
         `;
         document.body.appendChild(modal);
@@ -2009,6 +2012,95 @@ window.generateRecapText = function() {
         
         result += '\n_Semoga Allah senantiasa memberikan kesehatan, kelancaran, dan kebarokahan bagi kita semua. Amin._';
         document.getElementById('recap-result-text').value = result;
+    }
+};
+
+window.downloadRecapExcel = function() {
+    const type = document.getElementById('recap-type') ? document.getElementById('recap-type').value : 'daily';
+    
+    if (type === 'daily') {
+        const date1 = document.getElementById('recap-date-1').value;
+        if (!date1) {
+            showToast('Pilih tanggal pengajian', 'warning');
+            return;
+        }
+        
+        let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+        csvContent += "No;Nama Jamaah;Status Kehadiran\n";
+        
+        const logs = state.attendance.filter(log => log.date === date1);
+        
+        state.jamaah.forEach((m, index) => {
+            const log = logs.find(l => l.memberId === m.id);
+            const stat = log ? (log.status || (log.present ? 'Hadir' : 'Alpa')) : 'Alpa';
+            const name = `"${m.name.replace(/"/g, '""')}"`;
+            csvContent += `${index + 1};${name};${stat}\n`;
+        });
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `recap-harian-${date1}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast("Download Excel harian berhasil", "success");
+        
+    } else {
+        const monthVal = document.getElementById('recap-month').value;
+        if (!monthVal) {
+            showToast('Pilih bulan pengajian', 'warning');
+            return;
+        }
+        
+        const meetingsInMonth = [...new Set(state.attendance.filter(log => log.date.startsWith(monthVal)).map(log => log.date))].sort();
+        const totalMeetings = meetingsInMonth.length;
+        
+        if (totalMeetings === 0) {
+            showToast('Belum ada data kehadiran terekam untuk bulan ini', 'warning');
+            return;
+        }
+        
+        let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+        
+        // Header row
+        let header = "No;Nama Jamaah;Hadir (H);Izin (I);Sakit (S);Alpa (A);Persentase Kehadiran";
+        meetingsInMonth.forEach(date => {
+            header += `;${date}`;
+        });
+        csvContent += header + "\n";
+        
+        state.jamaah.forEach((m, index) => {
+            let hadir = 0, izin = 0, sakit = 0, alpa = 0;
+            let dateStatuses = [];
+            
+            meetingsInMonth.forEach(date => {
+                const log = state.attendance.find(l => l.date === date && l.memberId === m.id);
+                const stat = log ? (log.status || (log.present ? 'Hadir' : 'Alpa')) : 'Alpa';
+                if (stat === 'Hadir') { hadir++; dateStatuses.push('H'); }
+                else if (stat === 'Izin' || stat === 'Ijin') { izin++; dateStatuses.push('I'); }
+                else if (stat === 'Sakit') { sakit++; dateStatuses.push('S'); }
+                else { alpa++; dateStatuses.push('A'); }
+            });
+            
+            const pct = Math.round((hadir / totalMeetings) * 100);
+            const name = `"${m.name.replace(/"/g, '""')}"`;
+            
+            let row = `${index + 1};${name};${hadir};${izin};${sakit};${alpa};${pct}%`;
+            dateStatuses.forEach(s => {
+                row += `;${s}`;
+            });
+            csvContent += row + "\n";
+        });
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `recap-bulanan-${monthVal}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast("Download Excel bulanan berhasil", "success");
     }
 };
 
