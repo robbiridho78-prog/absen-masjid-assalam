@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Chart.js for premium analytical dashboard -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css?v=17">
+    <link rel="stylesheet" href="style.css?bypass=1783398216923">
     
     <!-- PWA Settings -->
     <link rel="manifest" href="manifest.json">
@@ -20,6 +20,7 @@
     <link rel="apple-touch-icon" href="logo.jpg">
 </head>
 <body>
+
     <!-- LOGIN SCREEN -->
     <div id="login-screen" class="login-overlay active">
         <div class="login-card">
@@ -50,6 +51,56 @@
         </div>
     </div>
 
+    <!-- EDIT ANNOUNCEMENT MODAL -->
+    <div id="announcement-modal" class="login-overlay">
+        <div class="login-card" style="max-width: 600px; width: 90%;">
+            <div class="login-header">
+                <h2 style="color: #2563eb;">Edit Pengumuman</h2>
+                <p>Tuliskan informasi penting untuk seluruh jamaah</p>
+            </div>
+            
+            <div class="form-group-vertical" style="margin-top: 20px;">
+                <textarea id="input-announcement" class="form-input" style="height: 200px; font-size: 16px; line-height: 1.5; padding: 15px;" placeholder="Ketik pengumuman di sini..."></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 25px;">
+                <button class="btn btn-danger" onclick="window.clearAnnouncement()" style="flex: 1;" title="Hapus pengumuman">
+                    <i data-lucide="trash-2"></i> Hapus
+                </button>
+                <button class="btn btn-primary" onclick="window.saveAnnouncement()" style="flex: 2; background: #2563eb; color: white;">
+                    <i data-lucide="save"></i> Simpan
+                </button>
+                <button class="btn btn-primary" onclick="window.broadcastAnnouncement()" style="flex: 2; background: #10b981; color: white; border-color: #10b981;" title="Kirim teks ini ke seluruh jamaah via WA">
+                    <i data-lucide="send"></i> Broadcast WA
+                </button>
+                <button class="btn btn-secondary" onclick="window.closeAnnouncementModal()" style="flex: 1;">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- MISSING JAMAAH MODAL -->
+    <div id="missing-jamaah-modal" class="login-overlay">
+        <div class="login-card" style="max-width: 600px; width: 90%;">
+            <div class="login-header" style="text-align: left; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 15px;">
+                <h2 style="color: #ef4444; display: flex; align-items: center; gap: 10px;">
+                    <i data-lucide="alert-triangle"></i> Jamaah Perlu Perhatian
+                </h2>
+                <p style="margin-top: 5px;">Daftar jamaah yang Alpa 3x berturut-turut atau lebih.</p>
+            </div>
+            
+            <div id="missing-jamaah-modal-content">
+                <!-- Rendered by JS -->
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                <button class="btn btn-secondary" onclick="window.closeMissingJamaahModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- MAIN APP -->
     <div id="app-container" class="app-container" style="display: none;">
         <!-- Sidebar Navigation -->
@@ -65,6 +116,10 @@
             </div>
 
             <nav class="sidebar-nav">
+                <button class="nav-item" data-tab="announcement" id="nav-announcement">
+                    <i data-lucide="megaphone"></i>
+                    <span>Pengumuman</span>
+                </button>
                 <button class="nav-item active" data-tab="dashboard" id="nav-dashboard">
                     <i data-lucide="layout-dashboard"></i>
                     <span>Dashboard</span>
@@ -90,6 +145,15 @@
                     <i data-lucide="settings"></i>
                     <span>Pengaturan</span>
                 </button>
+                                <button class="nav-item admin-only" onclick="openRecapModal()" style="color: var(--color-purple);">
+                    <i data-lucide="clipboard-list"></i>
+                    <span>Rekap WA</span>
+                </button>
+                
+                <button class="nav-item" id="btn-dark-mode-sidebar" onclick="window.toggleDarkMode()">
+                    <i data-lucide="moon"></i>
+                    <span id="dark-mode-text">Mode Gelap</span>
+                </button>
                 <div class="sidebar-divider"></div>
                 <button class="nav-item text-danger" id="btn-logout" style="color: #ef4444;">
                     <i data-lucide="log-out"></i>
@@ -113,13 +177,43 @@
                     <h2 id="page-title">Dashboard</h2>
                     <p id="page-subtitle" class="text-muted">Ringkasan aktivitas dan kehadiran jamaah hari ini</p>
                 </div>
+                
                 <button class="btn btn-icon btn-mobile-logout" id="btn-mobile-logout" title="Keluar">
                     <i data-lucide="log-out"></i>
                 </button>
             </header>
 
+            <!-- TAB: Announcement -->
+            <section id="tab-announcement" class="tab-panel">
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+                    <button class="btn btn-primary admin-only" onclick="window.openEditAnnouncementModal()" style="display: none; background: #2563eb; color: white;">
+                        <i data-lucide="edit-3"></i> Edit Pengumuman
+                    </button>
+                </div>
+                
+                <div class="dashboard-grid full-width">
+                    <div class="content-card" style="padding: 0; overflow: hidden; border: 2px solid #3b82f6; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);">
+                        <div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 20px; text-align: center;">
+                            <i data-lucide="bell" style="width: 48px; height: 48px; margin-bottom: 10px; color: #fbbf24;"></i>
+                            <h2 style="margin: 0; font-family: 'Times New Roman', Times, serif; font-size: 28px; letter-spacing: 1px;">INFORMASI PENTING</h2>
+                        </div>
+                        <div style="padding: 40px 30px; background: #f8fafc; min-height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                            <div id="announcement-display" style="font-size: 20px; line-height: 1.6; color: #1e293b; max-width: 800px; white-space: pre-wrap; font-weight: 500;">
+                                Belum ada pengumuman saat ini.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- TAB 1: Dashboard -->
             <section id="tab-dashboard" class="tab-panel active">
+                <!-- Running Text -->
+                <div class="marquee-container" id="marquee-container" style="display: none;">
+                    <div class="marquee-icon"><i data-lucide="megaphone" style="width: 20px; height: 20px; color: #fbbf24;"></i> <strong style="margin-left: 8px; color: #fbbf24;">INFO:</strong></div>
+                    <div class="marquee-content" id="marquee-text">Memuat informasi...</div>
+                </div>
+
                 <!-- Overview Stats Grid -->
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -184,6 +278,39 @@
                     </div>
                 </div>
 
+                
+
+                
+                
+                <!-- Rekap WA & Broadcast Controls -->
+                <div class="dashboard-grid full-width admin-only" style="margin-bottom: 20px;">
+                    <div class="content-card" style="padding: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background: linear-gradient(to right, rgba(147, 51, 234, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(147, 51, 234, 0.2);">
+                        <div style="flex: 1; min-width: 200px;">
+                            <h3 style="margin-bottom: 5px; color: var(--color-purple);"><i data-lucide="clipboard-list"></i> Rekap Pengajian (WA & Excel)</h3>
+                            <p style="font-size: 13px; color: #64748b; margin: 0;">Buat format laporan rekap pengajian harian / bulanan untuk dikirim ke grup WA atau unduh Excel.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openRecapModal()" style="min-width: 150px; background: var(--color-purple); color: white; border: none;">
+                            <i data-lucide="clipboard-list"></i> Buka Rekap WA
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Broadcast Controls -->
+                <div class="dashboard-grid full-width admin-only" style="margin-bottom: 20px;">
+                    <div class="content-card" style="padding: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background: linear-gradient(to right, rgba(37, 99, 235, 0.1), rgba(16, 185, 129, 0.1)); border: 1px solid rgba(37, 99, 235, 0.2);">
+                        <div style="flex: 1; min-width: 200px;">
+                            <h3 style="margin-bottom: 5px; color: #2563eb;"><i data-lucide="radio"></i> Fitur Siaran (Broadcast)</h3>
+                            <p style="font-size: 13px; color: #64748b; margin: 0;">Kirim pesan undangan atau rapot kehadiran massal ke jamaah.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="window.openBroadcastModal()" style="min-width: 150px; background: #2563eb; color: white;">
+                            <i data-lucide="send"></i> Kirim Pesan Massal
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Missing Jamaah Alert -->
+                <div id="missing-jamaah-container"></div>
+                
                 <!-- Charts & Activity Row -->
                 <div class="dashboard-grid full-width">
                     <!-- Analytics Chart Card -->
@@ -220,6 +347,12 @@
 
             <!-- TAB 2: Attendance Marking -->
             <section id="tab-attendance" class="tab-panel">
+                <!-- Running Text in Attendance Tab -->
+                <div class="marquee-container" id="marquee-container-attendance" style="display: none; margin-bottom: 15px;">
+                    <div class="marquee-icon"><i data-lucide="megaphone" style="width: 20px; height: 20px; color: #fbbf24;"></i> <strong style="margin-left: 8px; color: #fbbf24;">INFO:</strong></div>
+                    <div class="marquee-content" id="marquee-text-attendance">Memuat informasi...</div>
+                </div>
+
                 <!-- Filter Bar -->
                 <div class="filter-bar content-card">
                     <div class="filter-group">
@@ -435,31 +568,7 @@
                         </div>
                     </div>
 
-                    <!-- Database Management -->
-                    <div class="content-card">
-                        <div class="card-header">
-                            <h3><i data-lucide="database"></i> Kelola Database</h3>
-                        </div>
-                        <div class="card-body">
-                            <p class="text-muted mb-4">Cadangkan data kehadiran Anda atau pulihkan dari file cadangan eksternal.</p>
-                            
-                            <div class="settings-db-actions">
-                                <button id="btn-export-json" class="btn btn-secondary flex-1">
-                                    <i data-lucide="download"></i> Ekspor JSON
-                                </button>
-                                <button id="btn-export-csv" class="btn btn-secondary flex-1">
-                                    <i data-lucide="file-spreadsheet"></i> Ekspor CSV (Excel)
-                                </button>
-                            </div>
 
-                            <div class="settings-db-actions mt-4">
-                                <label for="import-json-file" class="btn btn-secondary flex-1 text-center cursor-pointer">
-                                    <i data-lucide="upload"></i> Impor JSON
-                                    <input type="file" id="import-json-file" accept=".json" style="display: none;">
-                                </label>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Developer & Mock Data Tool -->
                     <div class="content-card full-width">
@@ -475,8 +584,8 @@
                                 <button id="btn-generate-mock" class="btn btn-accent flex-1">
                                     <i data-lucide="sparkles"></i> Muat Data Demo
                                 </button>
-                                <button id="btn-reset-leaderboard" class="btn btn-warning flex-1">
-                                    <i data-lucide="refresh-ccw"></i> Reset Absen (Mulai Musim Baru)
+                                <button id="btn-reset-leaderboard" class="btn btn-danger flex-1">
+                                    <i data-lucide="trash-2"></i> Hapus Seluruh Riwayat Absen (Mulai Bulan Baru)
                                 </button>
                                 <button id="btn-clear-db" class="btn btn-danger flex-1">
                                     <i data-lucide="trash-2"></i> Hapus Semua Data (Termasuk Jamaah)
@@ -592,19 +701,18 @@
     <!-- Supabase SDK & Client -->
     <script src="supabase-client.js"></script>
 
-    <script src="app.js?v=43" defer></script>
+    <script src="app.js?bypass=1784400782000" defer></script>
 
-    <!-- PWA Service Worker Registration -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('sw.js').then(registration => {
-            console.log('SW registered: ', registration);
-          }).catch(registrationError => {
-            console.log('SW registration failed: ', registrationError);
-          });
-        });
-      }
-    </script>
+
+<script>
+if('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+            registration.unregister();
+            console.log('Unregistered SW!');
+        }
+    });
+}
+</script>
 </body>
 </html>
