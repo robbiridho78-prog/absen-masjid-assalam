@@ -703,6 +703,64 @@
 
     <script src="app.js?bypass=1784400782000" defer></script>
 
+    <!-- Snowfall Effect Canvas -->
+    <canvas id="snow-canvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 999999;"></canvas>
+
+    <script>
+    (function() {
+        const canvas = document.getElementById('snow-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', function() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const numFlakes = 45;
+        const flakes = [];
+
+        for (let i = 0; i < numFlakes; i++) {
+            flakes.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                r: Math.random() * 3 + 1.2,
+                d: Math.random() * numFlakes,
+                alpha: Math.random() * 0.6 + 0.3,
+                speedY: Math.random() * 1.2 + 0.6,
+                speedX: Math.random() * 0.8 - 0.4
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            for (let i = 0; i < numFlakes; i++) {
+                const f = flakes[i];
+                ctx.beginPath();
+                ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2, false);
+                ctx.fillStyle = `rgba(255, 255, 255, ${f.alpha})`;
+                ctx.shadowColor = 'rgba(186, 230, 253, 0.8)';
+                ctx.shadowBlur = 4;
+                ctx.fill();
+
+                f.y += f.speedY;
+                f.x += Math.sin(f.d) * 0.6 + f.speedX;
+                f.d += 0.02;
+
+                if (f.y > height) {
+                    f.y = -5;
+                    f.x = Math.random() * width;
+                }
+                if (f.x > width) f.x = 0;
+                if (f.x < 0) f.x = width;
+            }
+            requestAnimationFrame(draw);
+        }
+        draw();
+    })();
+    </script>
 
 <script>
 if('serviceWorker' in navigator) {
