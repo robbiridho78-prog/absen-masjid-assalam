@@ -251,6 +251,12 @@ async function loadDataFromDatabase() {
             state.attendance = dbAttendance || [];
             state.schedules = dbSchedules || [];
             
+            // Normalize attendance log keys (ensure both memberId and member_id are present)
+            state.attendance.forEach(log => {
+                if (log.member_id && !log.memberId) log.memberId = log.member_id;
+                if (log.memberId && !log.member_id) log.member_id = log.memberId;
+            });
+            
             // Mosque config still from local for now, or default
             const saved = localStorage.getItem("absen_jamaah_state");
             if (saved) {
@@ -263,11 +269,27 @@ async function loadDataFromDatabase() {
         } catch (e) {
             console.error("Gagal memuat dari Supabase. Menggunakan data local jika ada.", e);
             const saved = localStorage.getItem("absen_jamaah_state");
-            if (saved) state = JSON.parse(saved);
+            if (saved) {
+                state = JSON.parse(saved);
+                if (state.attendance) {
+                    state.attendance.forEach(log => {
+                        if (log.member_id && !log.memberId) log.memberId = log.member_id;
+                        if (log.memberId && !log.member_id) log.member_id = log.memberId;
+                    });
+                }
+            }
         }
     } else {
         const saved = localStorage.getItem("absen_jamaah_state");
-        if (saved) state = JSON.parse(saved);
+        if (saved) {
+            state = JSON.parse(saved);
+            if (state.attendance) {
+                state.attendance.forEach(log => {
+                    if (log.member_id && !log.memberId) log.memberId = log.member_id;
+                    if (log.memberId && !log.member_id) log.member_id = log.memberId;
+                });
+            }
+        }
     }
 }
 
