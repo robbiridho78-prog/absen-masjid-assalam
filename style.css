@@ -2,12 +2,12 @@
    DESIGN SYSTEM & VARIABLES
    ========================================================================== */
 :root {
-    --bg-primary: #f0f4f8; /* Light green */
-    --bg-secondary: #ffffff; /* Slightly darker light green */
-    --bg-card: #ffffff; /* White cards */
-    --bg-card-hover: #f8fafc;
-    --border-color: rgba(0, 0, 0, 0.08);
-    --border-color-hover: rgba(59, 130, 246, 0.4);
+    --bg-primary: #0f172a; /* Deep Slate / Night Sky */
+    --bg-secondary: #1e293b; /* Frosty Midnight Navy Sidebar */
+    --bg-card: rgba(30, 41, 59, 0.75); /* Frosted Glass Card */
+    --bg-card-hover: rgba(51, 65, 85, 0.85);
+    --border-color: rgba(255, 255, 255, 0.12);
+    --border-color-hover: rgba(56, 189, 248, 0.5);
     
     /* Brand Palette */
     --color-primary: #10b981; /* Emerald Green */
@@ -18,12 +18,12 @@
     --color-accent-hover: #d97706;
     --color-danger: #ef4444;
     --color-danger-hover: #dc2626;
-    --color-blue: #3b82f6;
-    --color-purple: #8b5cf6;
+    --color-blue: #38bdf8;
+    --color-purple: #a855f7;
     
     /* Text Colors */
-    --text-main: #0f172a; /* Dark slate text for readability */
-    --text-muted: #64748b; /* Muted dark slate */
+    --text-main: #f8fafc; /* Crisp White / Frost text */
+    --text-muted: #94a3b8; /* Muted Slate */
     
     /* Fonts & Radii */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -57,7 +57,8 @@
 }
 
 body {
-    background-color: var(--bg-primary);
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0c4a6e 100%);
+    background-attachment: fixed;
     color: var(--text-main);
     font-family: var(--font-sans);
     min-height: 100vh;
@@ -68,6 +69,7 @@ body {
     display: flex;
     min-height: 100vh;
     position: relative;
+    background: transparent;
 }
 
 /* Scrollbar Customization */
